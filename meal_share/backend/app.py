@@ -135,7 +135,7 @@ def register_business():
     with open(businesss_file, 'a') as f:
         f.write(f"{data['username']}:{data['password']}\n")
     
-    return jsonify({"message": "business registered successfully"}), 201
+    return jsonify({"message": "Business registered successfully"}), 201
 
 if __name__ == '__main__':
     # Ensure necessary directories exist
