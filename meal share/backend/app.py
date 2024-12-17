@@ -41,7 +41,7 @@ def driver_login():
     
     with open(drivers_file, 'r') as f:
         for line in f:
-            stored_username, stored_password = line.strip().split(',')
+            stored_username, stored_password = line.strip().split(':')
             if username == stored_username and password == stored_password:
                 return jsonify({"message": "Login successful"}), 200
     
@@ -61,7 +61,7 @@ def provider_login():
     
     with open(providers_file, 'r') as f:
         for line in f:
-            stored_username, stored_password = line.strip().split(',')
+            stored_username, stored_password = line.strip().split(':')
             if username == stored_username and password == stored_password:
                 return jsonify({"message": "Login successful"}), 200
     
@@ -75,10 +75,15 @@ def get_available_meals():
     if not os.path.exists(meals_file):
         return jsonify({"meals": []})
     
+    meals = {}
     with open(meals_file, 'r') as f:
-        meals = [line.strip().split(',') for line in f]
+        for line in f:
+            line = line.strip().split(':')
+            provider, number = line.split(':')
+            # if got repeat, only keep last value for number
+            meals[provider] = number
     
-    return jsonify({"meals": meals})
+    return jsonify(meals)
 
 @app.route('/api/provider/update-meals', methods=['POST'])
 def update_available_meals():
@@ -87,13 +92,23 @@ def update_available_meals():
     meals_file = 'meals/available_meals.txt'
     
     # Basic validation
-    if not data.get('restaurant') or not data.get('meals'):
+    if not data.get('provider') or not data.get('meals'):
         return jsonify({"error": "Invalid input"}), 400
     
     # Append new meals to file
+    meals = {}
+    with open(meals_file, 'r') as f:
+        for line in f:
+            line = line.strip().split(':')
+            provider, number = line.split(':')
+            # replace with new record
+            if provider == data['provider']:
+                number = data['provider']
+            meals[provider] = number
+
     with open(meals_file, 'a') as f:
-        for meal in data['meals']:
-            f.write(f"{data['restaurant']},{meal}\n")
+        for p in meals:
+            f.write(f"{p}:{meals[p]}\n")
     
     return jsonify({"message": "Meals updated successfully"}), 200
 
@@ -106,7 +121,7 @@ def register_driver():
     
     # Basic registration (plaintext storage)
     with open(drivers_file, 'a') as f:
-        f.write(f"{data['username']},{data['password']}\n")
+        f.write(f"{data['username']}:{data['password']}\n")
     
     return jsonify({"message": "Driver registered successfully"}), 201
 
@@ -118,7 +133,7 @@ def register_provider():
     
     # Basic registration (plaintext storage)
     with open(providers_file, 'a') as f:
-        f.write(f"{data['username']},{data['password']}\n")
+        f.write(f"{data['username']}:{data['password']}\n")
     
     return jsonify({"message": "Provider registered successfully"}), 201
 
@@ -128,4 +143,4 @@ if __name__ == '__main__':
     os.makedirs('meals', exist_ok=True)
     
     # Run the Flask app
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=8000)
