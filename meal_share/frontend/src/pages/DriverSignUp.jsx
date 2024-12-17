@@ -19,12 +19,37 @@ function DriverSignUp() {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form Submitted', formData);
-    alert('Sign Up Successful!'); // Replace with actual functionality
-  };
 
+    try {
+      const response = await fetch("http://127.0.0.1:5000/api/driver/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        // Handle errors: check if errors is a list
+        if (result.errors && Array.isArray(result.errors)) {
+          alert(`Errors:\n${result.errors.join("\n")}`);
+        } else if (result.message) {
+          alert(`Error: ${result.message}`);
+        } else {
+          alert("An unknown error occurred.");
+        }
+      } else {
+        // Handle success
+        alert(result.message || "Registration successful!");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Network error or server not reachable.");
+    }
+  };
   return (
     <div className="signup-container">
       <form className="signup-form" onSubmit={handleSubmit}>

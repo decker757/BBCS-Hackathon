@@ -1,1 +1,1 @@
-provider1:password2
+{"firstname": "Ernest", "lastname": "Tan", "role": "Manager", "businessemail": "lolol@gmail.com", "address": "lolololololol", "postal": "lolololololol", "username": "test123", "password": "scrypt:32768:8:1$YGrv4GX9nRbxKqmn$187fb013f6d64bd7858c54e5249675a91688d6c9005a376b5e22bc69c659c2c21f9ae2e6ea6c9b651fa0cbd7c297f4d3c3909ec0f037063e078b5071bed2080a"}

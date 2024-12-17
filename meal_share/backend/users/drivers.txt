@@ -1,1 +1,1 @@
-driver1:password1
+{"firstname": "Ernest", "lastname": "Tan", "username": "ernest", "password": "scrypt:32768:8:1$53h1ACZZgQmkPaO7$a1595f95e2324dedd9bcdd5ba2d8b5c906e1406ae9c78c7e51c0528cb32b26b770581b6a34a3ff235a1979cba013b8f2c1fe2c313617253e8c04dde3bd90b919", "email": "ernesttanjianyu@gmail.com", "deliverycompany": "Grab"}
