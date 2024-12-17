@@ -1,5 +1,5 @@
-import logo from './meal share/frontend/src/logo.svg';
-import './meal share/frontend/src/App.css'
+import logo from './logo.svg';
+import './App.css'
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 

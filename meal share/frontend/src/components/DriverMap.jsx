@@ -1,17 +1,17 @@
-import logo from './meal share/frontend/src/logo.svg';
-import './meal share/frontend/src/App.css'
+import logo from '../logo.svg';
+import '../App.css'
 import React, { useState } from 'react';
 import axios from 'axios';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
 // Import pages
-import About from './pages/About';
-import DriverLogin from './components/DriverLogin';
-import DriverAbout from './pages/DriverAbout';
-import DriverMap from './components/DriverMap';
-import ProviderLogin from './components/ProviderLogin';
-import ProviderAbout from './pages/ProviderAbout';
-import ProviderUpdate from './components/ProviderUpdate';
+import About from '../pages/About';
+import DriverLogin from '../components/DriverLogin';
+import DriverAbout from '../pages/DriverAbout';
+import DriverMap from '../components/DriverMap';
+import ProviderLogin from '../components/ProviderLogin';
+import ProviderAbout from '../pages/ProviderAbout';
+import ProviderUpdate from '../components/ProviderUpdate';
 
 function DriverMap() {
   const [meals, setMeals] = useState([]);
