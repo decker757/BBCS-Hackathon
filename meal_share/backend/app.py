@@ -85,7 +85,7 @@ def get_available_meals():
     
     return jsonify(meals)
 
-@app.route('/business/update-meals', methods=['POST'])
+@app.route('/business/updatemeals', methods=['POST'])
 def update_available_meals():
     """Update available meals for a business."""
     data = request.json
