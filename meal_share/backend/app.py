@@ -27,7 +27,7 @@ def append_file(filepath, content):
         f.write(content + '\n')
 
 # User Authentication Routes
-@app.route('/api/driver/login', methods=['POST'])
+@app.route('/driver/login', methods=['POST'])
 def driver_login():
     """Handle driver login."""
     data = request.json
@@ -47,19 +47,19 @@ def driver_login():
     
     return jsonify({"error": "Invalid credentials"}), 401
 
-@app.route('/api/provider/login', methods=['POST'])
-def provider_login():
-    """Handle provider login."""
+@app.route('/business/login', methods=['POST'])
+def business_login():
+    """Handle business login."""
     data = request.json
     username = data.get('username')
     password = data.get('password')
     
     # Super basic authentication (plaintext as requested)
-    providers_file = 'users/providers.txt'
-    if not os.path.exists(providers_file):
-        return jsonify({"error": "No providers registered"}), 404
+    businesss_file = 'users/businesss.txt'
+    if not os.path.exists(businesss_file):
+        return jsonify({"error": "No businesss registered"}), 404
     
-    with open(providers_file, 'r') as f:
+    with open(businesss_file, 'r') as f:
         for line in f:
             stored_username, stored_password = line.strip().split(':')
             if username == stored_username and password == stored_password:
@@ -68,7 +68,7 @@ def provider_login():
     return jsonify({"error": "Invalid credentials"}), 401
 
 # Meal Management Routes
-@app.route('/api/meals/available', methods=['GET'])
+@app.route('/meals/available', methods=['GET'])
 def get_available_meals():
     """Retrieve available meals."""
     meals_file = 'meals/available_meals.txt'
@@ -79,20 +79,20 @@ def get_available_meals():
     with open(meals_file, 'r') as f:
         for line in f:
             line = line.strip().split(':')
-            provider, number = line.split(':')
+            business, number = line.split(':')
             # if got repeat, only keep last value for number
-            meals[provider] = number
+            meals[business] = number
     
     return jsonify(meals)
 
-@app.route('/api/provider/update-meals', methods=['POST'])
+@app.route('/business/update-meals', methods=['POST'])
 def update_available_meals():
-    """Update available meals for a provider."""
+    """Update available meals for a business."""
     data = request.json
     meals_file = 'meals/available_meals.txt'
     
     # Basic validation
-    if not data.get('provider') or not data.get('meals'):
+    if not data.get('business') or not data.get('meals'):
         return jsonify({"error": "Invalid input"}), 400
     
     # Append new meals to file
@@ -100,11 +100,11 @@ def update_available_meals():
     with open(meals_file, 'r') as f:
         for line in f:
             line = line.strip().split(':')
-            provider, number = line.split(':')
+            business, number = line.split(':')
             # replace with new record
-            if provider == data['provider']:
-                number = data['provider']
-            meals[provider] = number
+            if business == data['business']:
+                number = data['business']
+            meals[business] = number
 
     with open(meals_file, 'a') as f:
         for p in meals:
@@ -125,17 +125,17 @@ def register_driver():
     
     return jsonify({"message": "Driver registered successfully"}), 201
 
-@app.route('/api/provider/register', methods=['POST'])
-def register_provider():
-    """Register a new food provider."""
+@app.route('/api/business/register', methods=['POST'])
+def register_business():
+    """Register a new food business."""
     data = request.json
-    providers_file = 'users/providers.txt'
+    businesss_file = 'users/businesss.txt'
     
     # Basic registration (plaintext storage)
-    with open(providers_file, 'a') as f:
+    with open(businesss_file, 'a') as f:
         f.write(f"{data['username']}:{data['password']}\n")
     
-    return jsonify({"message": "Provider registered successfully"}), 201
+    return jsonify({"message": "business registered successfully"}), 201
 
 if __name__ == '__main__':
     # Ensure necessary directories exist
