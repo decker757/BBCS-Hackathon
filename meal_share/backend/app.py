@@ -127,15 +127,6 @@ def business_login():
     if not os.path.exists(businesss_file):
         return jsonify({"error": "No businesss registered"}), 404
     
-<<<<<<< Updated upstream
-    with open(businesss_file, 'r') as f:
-        for line in f:
-            stored_username, stored_password = line.strip().split(':')
-            if username == stored_username and password == stored_password:
-                return jsonify({"message": "Login successful"}), 200
-    
-    return jsonify({"error": "Invalid credentials"}), 401
-=======
     if not username or not password:
         return jsonify({"message": "Username and password are required"}), 400
 
@@ -149,7 +140,6 @@ def business_login():
         return jsonify({"message": "Login successful"}), 200
     else:
         return jsonify({"message": "Invalid password"}), 401
->>>>>>> Stashed changes
 
 # Meal Management Routes
 @app.route('/meals/available', methods=['GET'])
@@ -244,13 +234,6 @@ def register_driver():
 def register_business():
     """Register a new food business."""
     data = request.json
-<<<<<<< Updated upstream
-    businesss_file = 'users/businesss.txt'
-    
-    # Basic registration (plaintext storage)
-    with open(businesss_file, 'a') as f:
-        f.write(f"{data['username']}:{data['password']}\n")
-=======
     providers_file = 'users/providers.txt'
 
     required_fields = ["firstname", "lastname", "role", "businessemail", "address", "postal", "username", "password"]
@@ -286,7 +269,6 @@ def register_business():
     # Basic registration (plaintext storage)
     with open(providers_file, 'a') as f:
         f.write(json.dumps(provider_data) + "\n")
->>>>>>> Stashed changes
     
     return jsonify({"message": "Business registered successfully"}), 201
 
