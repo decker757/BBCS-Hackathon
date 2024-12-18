@@ -133,7 +133,7 @@ def business_login():
     # Find user in file
     user = find_business_user_in_file(username)
     if not user:
-        return jsonify({"message": "User not found"}), 404
+        return jsonify({"message": "User not found"}), 401
 
     # Validate password
     if check_password_hash(user["password"], password):

@@ -5,11 +5,15 @@ function BusinessLogin() {
    const [username, setUsername] = useState('');
    const [password, setPassword] = useState('');
    const [isLoggedIn, setIsLoggedIn] = useState(false);
-   const [message, setMessage] = useState(''); // To display success/error messages
+   const [message, setMessage] = useState(''); // For both success and error messages
+   const [isError, setIsError] = useState(false); // Track if the message is an error
  
    // Function to handle form submission
    const handleSubmit = async (e) => {
      e.preventDefault(); // Prevents form from reloading
+
+     setMessage(''); // Reset previous messages
+     setIsError(false);
  
      try {
        // Send POST request to Flask backend
@@ -27,13 +31,17 @@ function BusinessLogin() {
          // If login successful
          setIsLoggedIn(true);
          setMessage('Login successful!'); // Show success message
+         setIsError(false);
+
        } else {
          // If login failed
          setMessage(result.message || 'Invalid credentials'); // Show error message
+         setIsError(true);
        }
      } catch (error) {
        console.error('Error during login:', error);
        setMessage('An error occurred. Please try again later.');
+       setIsError(true);
      }
    };
  
@@ -43,6 +51,7 @@ function BusinessLogin() {
      setUsername('');
      setPassword('');
      setMessage('');
+     setIsError(false);
    };
 
   return (
@@ -51,6 +60,10 @@ function BusinessLogin() {
         {!isLoggedIn ? (
           <div>
             <h2>Login Page</h2>
+            {/* Display success or error message */}
+              {message && (
+              <p style={{ color: isError ? 'red' : 'green' }}>{message}</p>
+            )}
             <form onSubmit={handleSubmit}>
               <div>
                 <label>Username:</label>
