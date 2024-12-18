@@ -28,7 +28,7 @@ function App() {
         <Route path="/drivermap" element={<DriverMap />} />
         <Route path="/providerupdate" element={<ProviderUpdate />} />
         <Route path="/driverabout" element={<DriverAbout />} />
-        <Route path="/bussinessabout" element={<BusinessAbout />} />
+        <Route path="/businessabout" element={<BusinessAbout />} />
       </Routes>
     </Router>
   );

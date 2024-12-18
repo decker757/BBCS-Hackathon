@@ -1,5 +1,6 @@
 import './DriverLogin.css';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function BusinessLogin() {
    const [username, setUsername] = useState('');
@@ -7,7 +8,8 @@ function BusinessLogin() {
    const [isLoggedIn, setIsLoggedIn] = useState(false);
    const [message, setMessage] = useState(''); // For both success and error messages
    const [isError, setIsError] = useState(false); // Track if the message is an error
- 
+   const navigate = useNavigate();
+
    // Function to handle form submission
    const handleSubmit = async (e) => {
      e.preventDefault(); // Prevents form from reloading
@@ -29,6 +31,7 @@ function BusinessLogin() {
  
        if (response.ok) {
          // If login successful
+         navigate('/businessabout', { state: {username} });
          setIsLoggedIn(true);
          setMessage('Login successful!'); // Show success message
          setIsError(false);
@@ -57,7 +60,6 @@ function BusinessLogin() {
   return (
     <div className="login">
       <header className="login-header">
-        {!isLoggedIn ? (
           <div>
             <h2>Login Page</h2>
             {/* Display success or error message */}
@@ -86,12 +88,6 @@ function BusinessLogin() {
               <button type="submit">Login</button>
             </form>
           </div>
-        ) : (
-          <div>
-            <h2>Welcome, {username}!</h2>
-            <button onClick={handleLogout}>Logout</button>
-          </div>
-        )}
       </header>
     </div>
   );
