@@ -21,6 +21,7 @@ const StoreLocator = () => {
       try {
         const response = await fetch("/api/locations");
         const data = await response.json();
+        console.log("Data:", data); // Debug log
         setLocations(data); // Save locations to state
       } catch (error) {
         console.error("Error fetching locations:", error);
@@ -33,6 +34,7 @@ const StoreLocator = () => {
   return (
     <div>
       <h1>Store Locator</h1>
+      
       <LoadScript googleMapsApiKey="AIzaSyB33V6scRrJ6yK36qt-XD_DgshA_CHPZ6U">
         <GoogleMap
           mapContainerStyle={containerStyle}
@@ -56,8 +58,22 @@ const StoreLocator = () => {
             >
               <div>
                 <h2>{selectedLocation.title}</h2>
-                <p>{selectedLocation.address1}</p>
-                <p>{selectedLocation.address2}</p>
+                <h3>{selectedLocation.address1}</h3>
+                <h3>{selectedLocation.address2}</h3>
+                <div>
+                  <h3>Meals:</h3>
+                  <ul>
+                    {selectedLocation.meals && selectedLocation.meals.length > 0 ? (
+                      selectedLocation.meals.map((meal, index) => (
+                        <li key={index}>
+                          <h4>{meal.dishName} ({meal.mealType}): {meal.quantity}</h4>
+                        </li>
+                      ))
+                    ) : (
+                      <p>No meals available</p>
+                    )}
+                  </ul>
+                </div>
               </div>
             </InfoWindow>
           )}

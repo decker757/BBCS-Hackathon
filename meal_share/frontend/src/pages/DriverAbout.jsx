@@ -18,7 +18,7 @@ const DriverAbout = () => {
         <section>
           <h2>Available Meal Locations</h2>
           {/* Integrating the StoreLocator component */}
-          <StoreLocator />
+          <StoreLocator/>
         </section>
       </main>
 

@@ -1,0 +1,4 @@
+{"dishName": "Chicken Biryani", "mealType": "Halal", "quantity": "150"}
+{"dishName": "Beef Stew", "mealType": "Non-Halal", "quantity": "100"}
+{"dishName": "Vegetable Curry", "mealType": "Vegetarian", "quantity": "180"}
+{"dishName": "Nasi Lemak", "mealType": "Halal", "quantity": "220"}

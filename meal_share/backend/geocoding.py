@@ -32,34 +32,39 @@ def get_locations():
         # Check if the file exists
         if not os.path.exists(BUSINESS_FILE_PATH):
             return jsonify({"error": "business.txt not found"}), 404
-
         # Read the business.txt file
         with open(BUSINESS_FILE_PATH, "r") as file:
-            business_data = json.load(file)
+            # business_data = json.load(file)
+            all_business_data = [json.loads(line) for line in file] # list of dictionaries
 
-        # Extract address and postal code
-        address = business_data.get("address", "")
-        postal_code = business_data.get("postal", "")
+        all_correct_business_data = []
+        for business_data in all_business_data:
+            # Extract address and postal code
+            address = business_data.get("address", "")
+            postal_code = business_data.get("postal", "")
 
-        if not address or not postal_code:
-            return jsonify({"error": "Address or postal code missing"}), 400
+            if not address or not postal_code:
+                return jsonify({"error": "Address or postal code missing"}), 400
 
-        # Combine address and postal code
-        full_address = f"{address}, {postal_code}"
+            # Combine address and postal code
+            full_address = f"{address}, {postal_code}"
 
-        # Geocode the address
-        coords = geocode_address(full_address)
-        if coords:
-            return jsonify([
-                {
+            # Geocode the address
+            coords = geocode_address(full_address)
+            if coords:
+                all_correct_business_data.append({
                     "title": f"{business_data.get('firstname', '')} {business_data.get('lastname', '')}",
                     "address1": address,
                     "address2": f"Postal Code: {postal_code}",
                     "coords": coords,
-                }
-            ])
-
-        return jsonify({"error": "Failed to geocode address"}), 400
+                })
+            else:
+                return jsonify({"error": "Error geocoding address}"}), 500
+        if all_correct_business_data:
+            return jsonify(all_correct_business_data)
+        else:
+            return jsonify({"error": "No locations found"}), 404
+        
 
     except json.JSONDecodeError:
         return jsonify({"error": "Error parsing business.txt"}), 400

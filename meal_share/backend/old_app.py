@@ -4,18 +4,9 @@ from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import json
-import requests
-import json
-import os
-from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 CORS(app)
-
-GOOGLE_MAPS_API_KEY = "AIzaSyB33V6scRrJ6yK36qt-XD_DgshA_CHPZ6U"
-BUSINESS_FILE_PATH = "users/business.txt"
-DRIVER_FILE_PATH = 'users/drivers.txt'
-DATA_DIR_PATH = 'meals'
 
 # Utility functions for file-based user and meal management
 def read_file(filepath):
@@ -81,33 +72,37 @@ def create_user_meals_file(username):
             file.write("")
     return file_path
 
-
+BUSINESS_FILE = 'users/business.txt'
 def find_business_user_in_file(username):
     """Find a user by username in the .txt file."""
-    if not os.path.exists(BUSINESS_FILE_PATH):
+    if not os.path.exists(BUSINESS_FILE):
         return None  # File does not exist yet
 
-    with open(BUSINESS_FILE_PATH, "r") as file:
+    with open(BUSINESS_FILE, "r") as file:
         for line in file:
             user = json.loads(line.strip())
             if user.get("username") == username:
                 return user  # Return the user data
     return None
 
+DRIVER_FILE = 'users/drivers.txt'
 def find_driver_user_in_file(username):
     """Find a user by username in the .txt file."""
-    if not os.path.exists(DRIVER_FILE_PATH):
+    if not os.path.exists(DRIVER_FILE):
         return None  # File does not exist yet
 
-    with open(DRIVER_FILE_PATH, "r") as file:
+    with open(DRIVER_FILE, "r") as file:
         for line in file:
             user = json.loads(line.strip())
             if user.get("username") == username:
                 return user  # Return the user data
     return None
 
+DATA_DIR = 'meals'
+os.makedirs(DATA_DIR, exist_ok = True)
+
 def get_user_file(username):
-    return os.path.join(DATA_DIR_PATH, f"{username}_meals.txt")
+    return os.path.join(DATA_DIR, f"{username}_meals.txt")
 
 def read_meals(username):
     user_file = get_user_file(username)
@@ -120,18 +115,6 @@ def write_meals(username, data):
     user_file = get_user_file(username)
     with open(user_file, 'a') as file:
         file.write(json.dumps(data) + "\n")
-
-def geocode_address(address):
-    """Geocode the address using Google Maps Geocoding API."""
-    url = "https://maps.googleapis.com/maps/api/geocode/json"
-    params = {"address": address, "key": GOOGLE_MAPS_API_KEY}
-    response = requests.get(url, params=params)
-    geocode_data = response.json()
-
-    if geocode_data["status"] == "OK":
-        location = geocode_data["results"][0]["geometry"]["location"]
-        return {"lat": location["lat"], "lng": location["lng"]}
-    return None        
 
 
 # User Authentication Routes
@@ -335,68 +318,10 @@ def register_business():
 
     return jsonify({"message": "Business registered successfully"}), 201
 
-@app.route('/api/locations', methods=['GET'])
-def get_locations():
-    """Read business.txt, geocode addresses, and return a list of locations."""
-    try:
-        # Check if the file exists
-        if not os.path.exists(BUSINESS_FILE_PATH):
-            return jsonify({"error": "business.txt not found"}), 404
-        # Read the business.txt file
-        with open(BUSINESS_FILE_PATH, "r") as file:
-            # business_data = json.load(file)
-            all_business_data = [json.loads(line) for line in file] # list of dictionaries
-
-        all_correct_business_data = []
-        for business_data in all_business_data:
-            # Extract address and postal code
-            address = business_data.get("address", "")
-            postal_code = business_data.get("postal", "")
-            username = business_data.get("username", "")
-
-            if not address or not postal_code:
-                return jsonify({"error": "Address or postal code missing"}), 400
-
-            # Combine address and postal code
-            full_address = f"{address}, {postal_code}"
-
-            # Geocode the address
-            coords = geocode_address(full_address)
-
-            # Get meals availble for the business
-            MEALS_PATH = f"meals/{username}_meals.txt"
-            with open(MEALS_PATH, "a+") as file:
-                file.seek(0)
-                meals = [json.loads(line) for line in file]
-                print(meals)
-
-            if coords:
-                all_correct_business_data.append({
-                    "title": f"{business_data.get('firstname', '')} {business_data.get('lastname', '')}",
-                    "address1": address,
-                    "address2": f"Postal Code: {postal_code}",
-                    "coords": coords,
-                    "meals": meals
-                })
-            else:
-                return jsonify({"error": "Error geocoding address}"}), 500
-        if all_correct_business_data:
-            print(all_correct_business_data)
-            return jsonify(all_correct_business_data)
-        else:
-            return jsonify({"error": "No locations found"}), 404
-        
-
-    except json.JSONDecodeError:
-        return jsonify({"error": "Error parsing business.txt"}), 400
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
 if __name__ == '__main__':
     # Ensure necessary directories exist
     os.makedirs('users', exist_ok=True)
     os.makedirs('meals', exist_ok=True)
     
     # Run the Flask app
-    # app.run(debug=True, port=5000)
-    app.run(debug=True)
+    app.run(debug=True, port=5000)

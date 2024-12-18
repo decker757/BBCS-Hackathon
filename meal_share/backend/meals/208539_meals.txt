@@ -1,0 +1,7 @@
+{"dishName": "Laksa", "mealType": "Non-Halal", "quantity": "250"}
+{"dishName": "Fish and Chips", "mealType": "Non-Halal", "quantity": "300"}
+{"dishName": "Roti Prata", "mealType": "Halal", "quantity": "180"}
+{"dishName": "Dim Sum", "mealType": "Non-Halal", "quantity": "120"}
+{"dishName": "Hainanese Chicken Rice", "mealType": "Halal", "quantity": "200"}
+{"dishName": "Mutton Korma", "mealType": "Non-Halal", "quantity": "100"}
+{"dishName": "Kaya Toast", "mealType": "Vegetarian", "quantity": "50"}
