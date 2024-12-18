@@ -8,7 +8,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import About from '../pages/About';
 import DriverAbout from '../pages/DriverAbout';
 import DriverMap from './DriverMap';
-import ProviderAbout from '../pages/ProviderAbout';
+import ProviderAbout from '../pages/BusinessAbout';
 
 function ProviderUpdate() {
   const [foodstall, setFoodstall] = useState('');

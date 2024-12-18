@@ -7,12 +7,13 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import About from './pages/About';
 import DriverAbout from './pages/DriverAbout';
 import DriverMap from './components/DriverMap';
-import ProviderAbout from './pages/ProviderAbout';
+import BusinessAbout from './pages/BusinessAbout';
 import ProviderUpdate from './components/ProviderUpdate';
 import Home from './pages/Home';
-import Login from './pages/Login';
+import DriverLogin from './pages/DriverLogin';
 import DriverSignUp from './pages/DriverSignUp';
 import BusinessSignUp from './pages/BusinessSignUp';
+import BusinessLogin from './pages/BusinessLogin';
 
 function App() {
   return (
@@ -20,13 +21,14 @@ function App() {
       <Routes>
       <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/login" element={<Login />} />
+        <Route path="/driverlogin" element={<DriverLogin />} />
         <Route path="/driversignup" element={<DriverSignUp />} />
         <Route path="/businesssignup" element={<BusinessSignUp />} />
+        <Route path="/businesslogin" element={<BusinessLogin />} />
         <Route path="/drivermap" element={<DriverMap />} />
         <Route path="/providerupdate" element={<ProviderUpdate />} />
         <Route path="/driverabout" element={<DriverAbout />} />
-        <Route path="/providerabout" element={<ProviderAbout />} />
+        <Route path="/businessabout" element={<BusinessAbout />} />
       </Routes>
     </Router>
   );
