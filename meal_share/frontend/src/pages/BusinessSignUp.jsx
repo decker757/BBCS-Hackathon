@@ -141,7 +141,7 @@ function BusinessSignUp() {
             required
           />
         </div>
-        
+
 
         {/* Password Field */}
         <div className="form-group">

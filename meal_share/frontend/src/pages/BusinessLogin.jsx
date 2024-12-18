@@ -1,54 +1,40 @@
 import './DriverLogin.css';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
 
-function BusinessLogin() {
-   const [username, setUsername] = useState('');
-   const [password, setPassword] = useState('');
-   const [isLoggedIn, setIsLoggedIn] = useState(false);
-   const [message, setMessage] = useState(''); // For both success and error messages
-   const [isError, setIsError] = useState(false); // Track if the message is an error
-   const navigate = useNavigate();
+function BusinessLogin({ setLoggedInUsername }) {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
+  const navigate = useNavigate();
 
-   // Function to handle form submission
-   const handleSubmit = async (e) => {
-     e.preventDefault(); // Prevents form from reloading
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-     setMessage(''); // Reset previous messages
-     setIsError(false);
- 
-     try {
-       // Send POST request to Flask backend
-       const response = await fetch('http://127.0.0.1:5000/api/business/login', {
-         method: 'POST',
-         headers: {
-           'Content-Type': 'application/json',
-         },
-         body: JSON.stringify({ username, password }), // Sending username and password
-       });
- 
-       const result = await response.json(); // Parse the response JSON
- 
-       if (response.ok) {
-         // If login successful
-         navigate('/businessabout', { state: {username} });
-         setIsLoggedIn(true);
-         setMessage('Login successful!'); // Show success message
-         setIsError(false);
+    try {
+      const response = await axios.post("http://127.0.0.1:5000/api/business/login", {
+        username,
+        password,
+      });
 
-       } else {
-         // If login failed
-         setMessage(result.message || 'Invalid credentials'); // Show error message
-         setIsError(true);
-       }
-     } catch (error) {
-       console.error('Error during login:', error);
-       setMessage('An error occurred. Please try again later.');
-       setIsError(true);
-     }
-   };
- 
-
+      if (response.status === 200) {
+        setLoggedInUsername(username); // Save the logged-in username in App state
+        console.log("Username set in App:", username); // Debug log
+        navigate("/businessabout", { state: { username }}); // Redirect to MealDonation page
+      }
+    } catch (error) {
+      if (error.response) {
+        // Backend returned an error
+        setMessage(error.response.data.message || "Invalid credentials");
+        setIsError(true);
+      } else {
+        setMessage("An error occurred. Please try again later.");
+        setIsError(true);
+      }
+    }
+  };
   return (
     <div className="login">
       <header className="login-header">
