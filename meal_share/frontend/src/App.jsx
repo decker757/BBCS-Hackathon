@@ -6,7 +6,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 // Import pages
 import About from './pages/About';
 import DriverAbout from './pages/DriverAbout';
-import DriverMap from './components/StoreLocator';
+import DriverMap from './components/DriverMap';
 import BusinessAbout from './pages/BusinessAbout';
 import ProviderUpdate from './components/ProviderUpdate';
 import Home from './pages/Home';
@@ -25,7 +25,7 @@ function App() {
         <Route path="/driversignup" element={<DriverSignUp />} />
         <Route path="/businesssignup" element={<BusinessSignUp />} />
         <Route path="/businesslogin" element={<BusinessLogin />} />
-        <Route path="/drivermap" element={<DriverMap />} />
+        <Route path="/storelocator" element={<StoreLocator />} />
         <Route path="/providerupdate" element={<ProviderUpdate />} />
         <Route path="/driverabout" element={<DriverAbout />} />
         <Route path="/businessabout" element={<BusinessAbout />} />
