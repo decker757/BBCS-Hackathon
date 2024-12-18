@@ -1,0 +1,17 @@
+[
+    {
+      "title": "Zhang Liang Mala Tang 张亮麻辣烫 @Dhoby Ghaut",
+      "address1": "9 Bras Basah Rd",
+      "address2": "#01-02 Rendezvous Hotel, Singapore 189559",
+      "coords": { "lat": 1.2989707259073906, "lng": 103.84900389325412 },
+      "placeId": "ChIJjZwzxP8Z2jERyB_ciu4zlMA"
+    },
+    {
+      "title": "Chicken Rice @ Maxwell",
+      "address1": "1 Kadayanallur St",
+      "address2": "Maxwell Food Centre, Singapore 069184",
+      "coords": { "lat": 1.280924, "lng": 103.844589 },
+      "placeId": "ChIJwXWsIXoZ2jERmMnHbuDnKVI"
+    }
+  ]
+  
