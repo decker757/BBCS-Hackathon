@@ -1,5 +1,5 @@
 import React from "react";
-import StoreLocator from "./StoreLocator";
+import StoreLocator from "../components/StoreLocator";
 
 function App() {
   return (

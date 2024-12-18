@@ -6,7 +6,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 // Import pages
 import About from './pages/About';
 import DriverAbout from './pages/DriverAbout';
-import DriverMap from './components/DriverMap';
+import DriverMap from './components/StoreLocator';
 import BusinessAbout from './pages/BusinessAbout';
 import ProviderUpdate from './components/ProviderUpdate';
 import Home from './pages/Home';

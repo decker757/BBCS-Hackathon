@@ -48,14 +48,6 @@ function BusinessLogin() {
      }
    };
  
-   // Function to handle logout
-   const handleLogout = () => {
-     setIsLoggedIn(false);
-     setUsername('');
-     setPassword('');
-     setMessage('');
-     setIsError(false);
-   };
 
   return (
     <div className="login">

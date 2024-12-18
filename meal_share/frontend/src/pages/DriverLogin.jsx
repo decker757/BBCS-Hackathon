@@ -1,5 +1,7 @@
 import './DriverLogin.css';
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 
 function DriverLogin() {
   const [username, setUsername] = useState('');
@@ -7,6 +9,8 @@ function DriverLogin() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [message, setMessage] = useState(''); // For both success and error messages
   const [isError, setIsError] = useState(false); // Track if the message is an error
+  const navigate = useNavigate();
+  
 
   // Function to handle form submission
   const handleSubmit = async (e) => {
@@ -29,6 +33,7 @@ function DriverLogin() {
 
       if (response.ok) {
         // If login successful
+        navigate('/driverabout', { state: {username} });
         setIsLoggedIn(true);
         setMessage('Login successful!'); // Show success message
         setIsError(false);
@@ -45,20 +50,10 @@ function DriverLogin() {
     }
   };
 
-  // Function to handle logout
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUsername('');
-    setPassword('');
-    setMessage('');
-    setIsError(false);
-  };
-
 
   return (
     <div className="login">
       <header className="login-header">
-        {!isLoggedIn ? (
           <div>
             <h2>Login Page</h2>
             {/* Display success or error message */}
@@ -88,12 +83,6 @@ function DriverLogin() {
               <button type="submit">Login</button>
             </form>
           </div>
-        ) : (
-          <div>
-            <h2>Welcome, {username}!</h2>
-            <button onClick={handleLogout}>Logout</button>
-          </div>
-        )}
       </header>
     </div>
   );
