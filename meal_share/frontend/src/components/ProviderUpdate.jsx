@@ -4,11 +4,6 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 
-// Import pages
-import About from '../pages/About';
-import DriverAbout from '../pages/DriverAbout';
-import DriverMap from './StoreLocator';
-import ProviderAbout from '../pages/BusinessAbout';
 
 function ProviderUpdate() {
   const [foodstall, setFoodstall] = useState('');

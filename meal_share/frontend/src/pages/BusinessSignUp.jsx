@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import './DriverSignUp.css';
 
 function BusinessSignUp() {
+  const navigate = useNavigate();
   // State to store user input
   const [formData, setFormData] = useState({
     firstname: '',
@@ -17,6 +20,7 @@ function BusinessSignUp() {
   // Handle changes in form inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
     setFormData({ ...formData, [name]: value });
   };
 
@@ -46,6 +50,7 @@ function BusinessSignUp() {
       } else {
         // Handle success
         alert(result.message || "Registration successful!");
+        navigate('/businesslogin');
       }
     } catch (error) {
       console.error("Error:", error);

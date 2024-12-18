@@ -14,10 +14,10 @@ function Home() {
 
       <div className="flex-container">
         <div className="driver-container">
-          <h2 className="driver-header">🎁 Here as a delivery driver?</h2>
+          <h2 className="driver-header">🎁 Here as a delivery rider?</h2>
 
           <button className="login-button">
-            <Link to="/DriverLogin" style={{ textDecoration: 'none', color: 'white' }}>Login</Link>
+            <Link to="/driverlogin" style={{ textDecoration: 'none', color: 'white' }}>Login</Link>
           </button>
           <button className="signup-button"> 
             <Link to="/driversignup" style={{ textDecoration: 'none', color: 'white' }}>Sign Up</Link>
@@ -26,7 +26,7 @@ function Home() {
         <div className="business-container">
           <h2 className="business-header">🎄 Here as a business owner?</h2>
           <button className="login-button">
-            <Link to="/BusinessLogin" style={{ textDecoration: 'none', color: 'white' }}>Login</Link>
+            <Link to="/businesslogin" style={{ textDecoration: 'none', color: 'white' }}>Login</Link>
           </button>
           <button className="signup-button">
             <Link to="/businesssignup" style={{ textDecoration: 'none', color: 'white' }}>Sign Up</Link>

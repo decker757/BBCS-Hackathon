@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './DriverSignUp.css';
 
 function DriverSignUp() {
+
+  const navigate = useNavigate();
   // State to store user input
   const [formData, setFormData] = useState({
     firstname: '',
@@ -44,6 +47,7 @@ function DriverSignUp() {
       } else {
         // Handle success
         alert(result.message || "Registration successful!");
+        navigate('/driverlogin');
       }
     } catch (error) {
       console.error("Error:", error);
