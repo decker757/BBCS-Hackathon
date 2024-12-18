@@ -8,7 +8,7 @@ app = Flask(__name__)
 GOOGLE_MAPS_API_KEY = "AIzaSyB33V6scRrJ6yK36qt-XD_DgshA_CHPZ6U"
 
 # Path to the business.txt file
-BUSINESS_FILE_PATH = "users\business.txt"
+BUSINESS_FILE_PATH = "users/business.txt"
 
 def geocode_address(address):
     """Geocode the address using Google Maps Geocoding API."""
