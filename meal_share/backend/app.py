@@ -52,6 +52,7 @@ def is_email_taken(email, file_path):
                 return True  # email found
     return False
 
+
 def is_businessemail_taken(businessemail, file_path):
     """Check if the username already exists in the file."""
     if not os.path.exists(file_path):
@@ -63,6 +64,14 @@ def is_businessemail_taken(businessemail, file_path):
             if user.get('businessemail') == businessemail:
                 return True  # Username found
     return False
+
+def create_user_meals_file(username):
+    file_path = os.path.join(DATA_DIR, f'{username}_meals.txt')
+    if not os.path.exists(file_path):
+        with open(file_path, "w") as file:
+            file.write("")
+    return file_path
+
 BUSINESS_FILE = 'users/business.txt'
 def find_business_user_in_file(username):
     """Find a user by username in the .txt file."""
@@ -88,6 +97,25 @@ def find_driver_user_in_file(username):
             if user.get("username") == username:
                 return user  # Return the user data
     return None
+
+DATA_DIR = 'meals'
+os.makedirs(DATA_DIR, exist_ok = True)
+
+def get_user_file(username):
+    return os.path.join(DATA_DIR, f"{username}_meals.txt")
+
+def read_meals(username):
+    user_file = get_user_file(username)
+    if not os.path.exists(user_file):
+        return []
+    with open(user_file, 'r') as file:
+        return [json.loads(line.strip()) for line in file]
+    
+def write_meals(username, data):
+    user_file = get_user_file(username)
+    with open(user_file, 'a') as file:
+        file.write(json.dumps(data) + "\n")
+
 # User Authentication Routes
 @app.route('/api/driver/login', methods=['POST'])
 def driver_login():
@@ -142,50 +170,64 @@ def business_login():
         return jsonify({"message": "Invalid password"}), 401
 
 # Meal Management Routes
-@app.route('/meals/available', methods=['GET'])
-def get_available_meals():
-    """Retrieve available meals."""
-    meals_file = 'meals/available_meals.txt'
-    if not os.path.exists(meals_file):
-        return jsonify({"meals": []})
-    
-    meals = {}
-    with open(meals_file, 'r') as f:
-        for line in f:
-            line = line.strip().split(':')
-            business, number = line.split(':')
-            # if got repeat, only keep last value for number
-            meals[business] = number
-    
-    return jsonify(meals)
-
-@app.route('/business/updatemeals', methods=['POST'])
-def update_available_meals():
-    """Update available meals for a business."""
+@app.route('/meals/available/<username>', methods=['POST'])
+def add_meal(username):
     data = request.json
-    meals_file = 'meals/available_meals.txt'
-    
-    # Basic validation
-    if not data.get('business') or not data.get('meals'):
-        return jsonify({"error": "Invalid input"}), 400
-    
-    # Append new meals to file
-    meals = {}
-    with open(meals_file, 'r') as f:
-        for line in f:
-            line = line.strip().split(':')
-            business, number = line.split(':')
-            # replace with new record
-            if business == data['business']:
-                number = data['business']
-            meals[business] = number
+    if not username or not all(key in data for key in ["dishName", "mealType", "quantity"]):
+        return jsonify({"message": "Invalid input or missing username"}), 400
 
-    with open(meals_file, 'a') as f:
-        for p in meals:
-            f.write(f"{p}:{meals[p]}\n")
-    
-    return jsonify({"message": "Meals updated successfully"}), 200
+    # Write to user-specific file
+    write_meals(username, {
+        "dishName": data["dishName"],
+        "mealType": data["mealType"],
+        "quantity": data["quantity"]
+    })
 
+    return jsonify({"message": f"Meal added successfully for {username}"}), 201
+
+@app.route('/business/updatemeals/<username>', methods=['GET'])
+def get_meals(username):
+    if not username:
+        return jsonify({"message": "Username is required"}), 400
+
+    meals = read_meals(username)
+    return jsonify(meals), 200
+
+@app.route('/business/updatemeals/<username>', methods=['PUT'])
+def update_meal(username):
+    data = request.json
+    dish_name = data.get("dishName")
+    new_quantity = data.get("newQuantity")
+
+    if not dish_name or not new_quantity:
+        return jsonify({"message": "Dish name and new quantity are required"}), 400
+
+    user_file = os.path.join(DATA_DIR, f"{username}_meals.txt")
+    if not os.path.exists(user_file):
+        return jsonify({"message": "User file not found"}), 404
+
+    updated_meals = []
+    meal_updated = False
+
+    # Update the specific meal's quantity
+    with open(user_file, "r") as file:
+        for line in file:
+            meal = json.loads(line.strip())
+            if meal["dishName"] == dish_name:
+                meal["quantity"] = new_quantity
+                meal_updated = True
+            updated_meals.append(meal)
+
+    # Write updated meals back to the file
+    with open(user_file, "w") as file:
+        for meal in updated_meals:
+            file.write(json.dumps(meal) + "\n")
+
+    if meal_updated:
+        return jsonify({"message": "Meal updated successfully"}), 200
+    else:
+        return jsonify({"message": "Dish not found"}), 404
+    
 # Registration Routes
 @app.route('/api/driver/register', methods=['POST'])
 def register_driver():
@@ -270,6 +312,8 @@ def register_business():
     with open(business_file, 'a') as f:
         f.write(json.dumps(business_data) + "\n")
     
+    create_user_meals_file(data['username'])
+
     return jsonify({"message": "Business registered successfully"}), 201
 
 if __name__ == '__main__':
