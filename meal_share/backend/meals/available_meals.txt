@@ -1,2 +1,0 @@
-provider1:10
-provider2:5
