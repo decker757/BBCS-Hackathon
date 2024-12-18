@@ -1,18 +1,18 @@
 import React from 'react';
-import ProviderUpdate from '../components/ProviderUpdate';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-function BusinessAbout({username}) {
+function BusinessAbout() {
     const location = useLocation();
     const navigate = useNavigate();
+
+    const username = location.state?.username || 'User';
 
     const handleLogout =() => {
         navigate('/');
     };
     return (
         <div>
-            <h2>Welcome {username}</h2>
-            <ProviderUpdate/>
+            <h2>Welcome, {username}!</h2>
             <button onClick={handleLogout}>Logout</button>
         </div>
     ); 

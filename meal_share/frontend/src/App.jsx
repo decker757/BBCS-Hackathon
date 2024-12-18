@@ -16,8 +16,6 @@ import BusinessSignUp from './pages/BusinessSignUp';
 import BusinessLogin from './pages/BusinessLogin';
 
 function App() {
-  const [loggedInUsername, setLoggedInUsername] = useState(null);
-
   return (
     <Router>
       <Routes>
@@ -26,11 +24,11 @@ function App() {
         <Route path="/driverlogin" element={<DriverLogin />} />
         <Route path="/driversignup" element={<DriverSignUp />} />
         <Route path="/businesssignup" element={<BusinessSignUp />} />
-        <Route path="/businesslogin" element={<BusinessLogin setLoggedInUsername={setLoggedInUsername} />} />
+        <Route path="/businesslogin" element={<BusinessLogin />} />
         <Route path="/storelocator" element={<StoreLocator />} />
-        <Route path="/providerupdate" element={<ProviderUpdate username={loggedInUsername}/>} />
+        <Route path="/providerupdate" element={<ProviderUpdate />} />
         <Route path="/driverabout" element={<DriverAbout />} />
-        <Route path="/businessabout" element={<BusinessAbout username={loggedInUsername} />} />
+        <Route path="/businessabout" element={<BusinessAbout />} />
       </Routes>
     </Router>
   );
