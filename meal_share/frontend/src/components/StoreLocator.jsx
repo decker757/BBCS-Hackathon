@@ -12,8 +12,8 @@ const defaultCenter = {
 };
 
 const StoreLocator = () => {
-  const [locations, setLocations] = useState([]);
-  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [locations, setLocations] = useState([]); // Stores all fetched locations
+  const [selectedLocation, setSelectedLocation] = useState(null); // Tracks the selected marker's location
 
   // Fetch locations from the backend
   useEffect(() => {
@@ -21,7 +21,7 @@ const StoreLocator = () => {
       try {
         const response = await fetch("/api/locations");
         const data = await response.json();
-        setLocations(data);
+        setLocations(data); // Save locations to state
       } catch (error) {
         console.error("Error fetching locations:", error);
       }
@@ -36,23 +36,23 @@ const StoreLocator = () => {
       <LoadScript googleMapsApiKey="AIzaSyB33V6scRrJ6yK36qt-XD_DgshA_CHPZ6U">
         <GoogleMap
           mapContainerStyle={containerStyle}
-          center={defaultCenter}
+          center={defaultCenter} // Default center, adjust dynamically if needed
           zoom={12}
         >
-          {/* Map Markers */}
+          {/* Display Markers */}
           {locations.map((location, index) => (
             <Marker
               key={index}
-              position={location.coords}
-              onClick={() => setSelectedLocation(location)}
+              position={location.coords} // Use the coordinates from backend
+              onClick={() => setSelectedLocation(location)} // Open info window on click
             />
           ))}
 
-          {/* Info Window for Selected Location */}
+          {/* Display InfoWindow when a marker is selected */}
           {selectedLocation && (
             <InfoWindow
               position={selectedLocation.coords}
-              onCloseClick={() => setSelectedLocation(null)}
+              onCloseClick={() => setSelectedLocation(null)} // Close info window
             >
               <div>
                 <h2>{selectedLocation.title}</h2>

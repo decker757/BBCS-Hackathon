@@ -1,18 +1,20 @@
 import requests
 import json
-from flask import Flask, request, jsonify
+import os
+from flask import Flask, jsonify
 
 app = Flask(__name__)
 
-# Replace with your Google Maps API key
+# Google Maps API Key
 GOOGLE_MAPS_API_KEY = "AIzaSyB33V6scRrJ6yK36qt-XD_DgshA_CHPZ6U"
 
-# Path to the business.txt file
+# Path to business.txt
 BUSINESS_FILE_PATH = "users/business.txt"
+
 
 def geocode_address(address):
     """Geocode the address using Google Maps Geocoding API."""
-    url = f"https://maps.googleapis.com/maps/api/geocode/json"
+    url = "https://maps.googleapis.com/maps/api/geocode/json"
     params = {"address": address, "key": GOOGLE_MAPS_API_KEY}
     response = requests.get(url, params=params)
     geocode_data = response.json()
@@ -25,51 +27,44 @@ def geocode_address(address):
 
 @app.route('/api/locations', methods=['GET'])
 def get_locations():
-    """Read business.txt, extract addresses, and geocode them."""
-    locations = []
+    """Read business.txt, geocode addresses, and return a list of locations."""
     try:
-        # Read and parse the business.txt file
+        # Check if the file exists
+        if not os.path.exists(BUSINESS_FILE_PATH):
+            return jsonify({"error": "business.txt not found"}), 404
+
+        # Read the business.txt file
         with open(BUSINESS_FILE_PATH, "r") as file:
             business_data = json.load(file)
-        
-        # Extract the address and geocode it
-        address = business_data.get("address")
-        if not address:
-            return jsonify({"error": "No address found in the file"}), 400
 
-        coords = geocode_address(address)
+        # Extract address and postal code
+        address = business_data.get("address", "")
+        postal_code = business_data.get("postal", "")
+
+        if not address or not postal_code:
+            return jsonify({"error": "Address or postal code missing"}), 400
+
+        # Combine address and postal code
+        full_address = f"{address}, {postal_code}"
+
+        # Geocode the address
+        coords = geocode_address(full_address)
         if coords:
-            locations.append({
-                "title": f"{business_data.get('firstname', '')} {business_data.get('lastname', '')}",
-                "address1": address,
-                "address2": f"Postal Code: {business_data.get('postal', '')}",
-                "coords": coords,
-            })
+            return jsonify([
+                {
+                    "title": f"{business_data.get('firstname', '')} {business_data.get('lastname', '')}",
+                    "address1": address,
+                    "address2": f"Postal Code: {postal_code}",
+                    "coords": coords,
+                }
+            ])
 
-        return jsonify(locations)
+        return jsonify({"error": "Failed to geocode address"}), 400
 
-    except FileNotFoundError:
-        return jsonify({"error": "business.txt not found"}), 404
     except json.JSONDecodeError:
-        return jsonify({"error": "Error decoding business.txt"}), 400
+        return jsonify({"error": "Error parsing business.txt"}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-@app.route('/api/geocode', methods=['POST'])
-def geocode_address_api():
-    """Geocode an address provided in the request."""
-    data = request.json
-    address = data.get("address")
-
-    if not address:
-        return jsonify({"error": "Address is required"}), 400
-
-    coords = geocode_address(address)
-    if coords:
-        return jsonify(coords)
-    else:
-        return jsonify({"error": "Unable to fetch coordinates"}), 400
 
 
 if __name__ == '__main__':
