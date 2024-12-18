@@ -5,13 +5,11 @@ function DriverLogin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [message, setMessage] = useState(''); // State to store error/success messages
-  const [error, setError] = useState('');     // State to store login errors
+  const [message, setMessage] = useState(''); // To display success/error messages
 
   // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevents form from reloading
-    setError('');
 
     try {
       // Send POST request to Flask backend
@@ -29,13 +27,13 @@ function DriverLogin() {
         // If login successful
         setIsLoggedIn(true);
         setMessage('Login successful!'); // Show success message
-        setError(''); // Clear any previous error
       } else {
-        setError(result.message || 'Invalid credentials'); // Show error message
+        // If login failed
+        setMessage(result.message || 'Invalid credentials'); // Show error message
       }
     } catch (error) {
       console.error('Error during login:', error);
-      setError('An error occurred. Please try again later.');
+      setMessage('An error occurred. Please try again later.');
     }
   };
 
@@ -46,6 +44,8 @@ function DriverLogin() {
     setPassword('');
     setMessage('');
   };
+
+
   return (
     <div className="login">
       <header className="login-header">

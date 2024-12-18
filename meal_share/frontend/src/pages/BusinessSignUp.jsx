@@ -25,7 +25,7 @@ function BusinessSignUp() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/provider/register", {
+      const response = await fetch("http://127.0.0.1:5000/api/business/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -63,13 +63,13 @@ def is_businessemail_taken(businessemail, file_path):
             if user.get('businessemail') == businessemail:
                 return True  # Username found
     return False
-PROVIDER_FILE = 'users/providers.txt'
-def find_provider_user_in_file(username):
+BUSINESS_FILE = 'users/business.txt'
+def find_business_user_in_file(username):
     """Find a user by username in the .txt file."""
-    if not os.path.exists(PROVIDER_FILE):
+    if not os.path.exists(BUSINESS_FILE):
         return None  # File does not exist yet
 
-    with open(PROVIDER_FILE, "r") as file:
+    with open(BUSINESS_FILE, "r") as file:
         for line in file:
             user = json.loads(line.strip())
             if user.get("username") == username:
@@ -89,7 +89,7 @@ def find_driver_user_in_file(username):
                 return user  # Return the user data
     return None
 # User Authentication Routes
-@app.route('/driver/login', methods=['POST'])
+@app.route('/api/driver/login', methods=['POST'])
 def driver_login():
     """Handle driver login."""
     data = request.json
@@ -115,7 +115,7 @@ def driver_login():
     else:
         return jsonify({"message": "Invalid password"}), 401
 
-@app.route('/business/login', methods=['POST'])
+@app.route('/api/business/login', methods=['POST'])
 def business_login():
     """Handle business login."""
     data = request.json
@@ -123,15 +123,15 @@ def business_login():
     password = data.get('password')
     
     # Super basic authentication (plaintext as requested)
-    businesss_file = 'users/businesss.txt'
-    if not os.path.exists(businesss_file):
-        return jsonify({"error": "No businesss registered"}), 404
+    business_file = 'users/business.txt'
+    if not os.path.exists(business_file):
+        return jsonify({"error": "No business registered"}), 404
     
     if not username or not password:
         return jsonify({"message": "Username and password are required"}), 400
 
     # Find user in file
-    user = find_provider_user_in_file(username)
+    user = find_business_user_in_file(username)
     if not user:
         return jsonify({"message": "User not found"}), 404
 
@@ -234,7 +234,7 @@ def register_driver():
 def register_business():
     """Register a new food business."""
     data = request.json
-    providers_file = 'users/providers.txt'
+    business_file = 'users/business.txt'
 
     required_fields = ["firstname", "lastname", "role", "businessemail", "address", "postal", "username", "password"]
     errors = []
@@ -243,10 +243,10 @@ def register_business():
         if field not in data or not data[field]:
             errors.append(f"Missing field: {field}")
         
-    if is_username_taken(data['username'], providers_file):
+    if is_username_taken(data['username'], business_file):
         errors.append("Username already exists")  
     
-    if is_businessemail_taken(data['businessemail'], providers_file):
+    if is_businessemail_taken(data['businessemail'], business_file):
         errors.append("Email is already used") 
 
     if errors:
@@ -255,7 +255,7 @@ def register_business():
     
     hashed_password = generate_password_hash(data['password'])
 
-    provider_data = {
+    business_data = {
         "firstname": data['firstname'],
         "lastname": data['lastname'],
         "role": data['role'],
@@ -267,8 +267,8 @@ def register_business():
     }
     
     # Basic registration (plaintext storage)
-    with open(providers_file, 'a') as f:
-        f.write(json.dumps(provider_data) + "\n")
+    with open(business_file, 'a') as f:
+        f.write(json.dumps(business_data) + "\n")
     
     return jsonify({"message": "Business registered successfully"}), 201
 

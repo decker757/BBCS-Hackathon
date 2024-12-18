@@ -7,7 +7,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import About from './pages/About';
 import DriverAbout from './pages/DriverAbout';
 import DriverMap from './components/DriverMap';
-import ProviderAbout from './pages/ProviderAbout';
+import BusinessAbout from './pages/BusinessAbout';
 import ProviderUpdate from './components/ProviderUpdate';
 import Home from './pages/Home';
 import DriverLogin from './pages/DriverLogin';
@@ -28,7 +28,7 @@ function App() {
         <Route path="/drivermap" element={<DriverMap />} />
         <Route path="/providerupdate" element={<ProviderUpdate />} />
         <Route path="/driverabout" element={<DriverAbout />} />
-        <Route path="/providerabout" element={<ProviderAbout />} />
+        <Route path="/bussinessabout" element={<BusinessAbout />} />
       </Routes>
     </Router>
   );
