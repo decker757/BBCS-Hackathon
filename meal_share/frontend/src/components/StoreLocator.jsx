@@ -36,7 +36,7 @@ const StoreLocator = () => {
   return (
     <div>
       <h1>Store Locator</h1>
-      
+
       <LoadScript googleMapsApiKey="AIzaSyB33V6scRrJ6yK36qt-XD_DgshA_CHPZ6U">
         <GoogleMap
           mapContainerStyle={containerStyle}
@@ -76,6 +76,26 @@ const StoreLocator = () => {
                     )}
                   </ul>
                 </div>
+                {/* Button to open in Google Maps */}
+                <button
+                  style={{
+                    marginTop: "10px",
+                    padding: "10px",
+                    backgroundColor: "#4285F4",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    const lat = selectedLocation.coords.lat;
+                    const lng = selectedLocation.coords.lng;
+                    const googleMapsURL = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+                    window.open(googleMapsURL, "_blank");
+                  }}
+                >
+                  Navigate in Google Maps
+                </button>
               </div>
             </InfoWindow>
           )}
