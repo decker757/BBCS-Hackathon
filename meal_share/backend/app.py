@@ -339,6 +339,7 @@ def register_business():
 @app.route('/api/locations', methods=['GET'])
 def get_locations():
     """Read business.txt, geocode addresses, and return a list of locations."""
+    print('here')
     try:
         # Check if the file exists
         if not os.path.exists(BUSINESS_FILE_PATH):
@@ -347,6 +348,7 @@ def get_locations():
         with open(BUSINESS_FILE_PATH, "r") as file:
             # business_data = json.load(file)
             all_business_data = [json.loads(line) for line in file] # list of dictionaries
+            print(all_business_data)
 
         all_correct_business_data = []
         for business_data in all_business_data:
@@ -370,7 +372,7 @@ def get_locations():
                 file.seek(0)
                 meals = [json.loads(line) for line in file]
                 print(meals)
-
+            print('here')
             if coords:
                 all_correct_business_data.append({
                     "title": f"{business_data.get('firstname', '')} {business_data.get('lastname', '')}",
@@ -383,10 +385,9 @@ def get_locations():
                 return jsonify({"error": "Error geocoding address}"}), 500
         if all_correct_business_data:
             print(all_correct_business_data)
-            return jsonify(all_correct_business_data)
+            return jsonify(all_correct_business_data), 200
         else:
             return jsonify({"error": "No locations found"}), 404
-        
 
     except json.JSONDecodeError:
         return jsonify({"error": "Error parsing business.txt"}), 400

@@ -19,7 +19,9 @@ const StoreLocator = () => {
   useEffect(() => {
     const fetchLocations = async () => {
       try {
+        console.log('fetching locations');
         const response = await fetch("/api/locations");
+        console.log('response', response);
         const data = await response.json();
         console.log("Data:", data); // Debug log
         setLocations(data); // Save locations to state

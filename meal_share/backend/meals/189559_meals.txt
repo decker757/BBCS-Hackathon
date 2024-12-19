@@ -1,0 +1,4 @@
+{"dishName": "Kaya Toast", "mealType": "Vegetarian", "quantity": "50"}
+{"dishName": "Chilli Crab", "mealType": "Non-Halal", "quantity": "180"}
+{"dishName": "Mee Goreng", "mealType": "Halal", "quantity": "160"}
+{"dishName": "Satay", "mealType": "Non-Halal", "quantity": "200"}
