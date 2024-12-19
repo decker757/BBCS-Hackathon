@@ -15,7 +15,7 @@ CORS(app)
 GOOGLE_MAPS_API_KEY = "AIzaSyB33V6scRrJ6yK36qt-XD_DgshA_CHPZ6U"
 BUSINESS_FILE_PATH = "users/business.txt"
 DRIVER_FILE_PATH = 'users/drivers.txt'
-DATA_DIR_PATH = 'meals'
+DATA_DIR = 'meals'
 
 # Utility functions for file-based user and meal management
 def read_file(filepath):
@@ -107,7 +107,7 @@ def find_driver_user_in_file(username):
     return None
 
 def get_user_file(username):
-    return os.path.join(DATA_DIR_PATH, f"{username}_meals.txt")
+    return os.path.join(DATA_DIR, f"{username}_meals.txt")
 
 def read_meals(username):
     user_file = get_user_file(username)

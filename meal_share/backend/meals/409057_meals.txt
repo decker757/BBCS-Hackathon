@@ -1,4 +1,1 @@
-{"dishName": "Dim Sum", "mealType": "Non-Halal", "quantity": "120"}
-{"dishName": "Hainanese Chicken Rice", "mealType": "Halal", "quantity": "200"}
-{"dishName": "Mutton Korma", "mealType": "Non-Halal", "quantity": "100"}
-{"dishName": "Kaya Toast", "mealType": "Vegetarian", "quantity": "50"}
+{"dishName": "Airism", "mealType": "Halal", "quantity": "2000"}
