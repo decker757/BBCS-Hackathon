@@ -297,7 +297,7 @@ def register_business():
     data = request.json
     business_file = 'users/business.txt'
 
-    required_fields = ["firstname", "lastname", "role", "businessemail", "address", "postal", "username", "password"]
+    required_fields = ["firstname", "lastname", "role", "businessname","businessemail", "address", "postal", "username", "password"]
     errors = []
 
     for field in required_fields:
@@ -320,6 +320,7 @@ def register_business():
         "firstname": data['firstname'],
         "lastname": data['lastname'],
         "role": data['role'],
+        "businessname": data['businessname'],
         "businessemail": data['businessemail'],
         "address": data['address'],
         "postal": data['postal'],

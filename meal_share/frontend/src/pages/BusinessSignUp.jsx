@@ -10,6 +10,7 @@ function BusinessSignUp() {
     firstname: '',
     lastname: '',
     role: '',
+    businessname: '',
     businessemail: '',
     address: '',
     postal: '',
@@ -95,6 +96,18 @@ function BusinessSignUp() {
                 required
             />
          </div> 
+          {/* Business Name */}
+        <div className="form-group">
+          <label>Business Name</label>
+          <input
+            type="text"
+            name="businessname"
+            placeholder="Enter the name of your Enterprise"
+            value={formData.businessname}
+            onChange={handleChange}
+            required
+          />
+        </div>
         {/* Email Field */}
         <div className="form-group">
           <label>Business Email</label>
