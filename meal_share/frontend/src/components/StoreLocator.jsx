@@ -20,7 +20,7 @@ const StoreLocator = () => {
     const fetchLocations = async () => {
       try {
         console.log('fetching locations');
-        const response = await fetch("/api/locations");
+        const response = await fetch("http://localhost:5000/api/locations");
         console.log('response', response);
         const data = await response.json();
         console.log("Data:", data); // Debug log
