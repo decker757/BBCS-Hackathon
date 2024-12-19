@@ -1,6 +1,15 @@
-{"dishName": "Airism", "mealType": "Halal", "quantity": "2000"}
+{"dishName": "Chicken Biryani", "mealType": "Halal", "quantity": "150"}
+{"dishName": "Beef Stew", "mealType": "Non-Halal", "quantity": "100"}
+{"dishName": "Vegetable Curry", "mealType": "Vegetarian", "quantity": "180"}
+{"dishName": "Nasi Lemak", "mealType": "Halal", "quantity": "220"}
 {"dishName": "Char Kway Teow", "mealType": "Non-Halal", "quantity": "200"}
 {"dishName": "Laksa", "mealType": "Non-Halal", "quantity": "250"}
 {"dishName": "Fish and Chips", "mealType": "Non-Halal", "quantity": "300"}
 {"dishName": "Roti Prata", "mealType": "Halal", "quantity": "180"}
 {"dishName": "Dim Sum", "mealType": "Non-Halal", "quantity": "120"}
+{"dishName": "Hainanese Chicken Rice", "mealType": "Halal", "quantity": "200"}
+{"dishName": "Mutton Korma", "mealType": "Non-Halal", "quantity": "100"}
+{"dishName": "Kaya Toast", "mealType": "Vegetarian", "quantity": "50"}
+{"dishName": "Chilli Crab", "mealType": "Non-Halal", "quantity": "180"}
+{"dishName": "Mee Goreng", "mealType": "Halal", "quantity": "160"}
+{"dishName": "Satay", "mealType": "Non-Halal", "quantity": "200"}
