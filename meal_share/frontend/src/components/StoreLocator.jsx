@@ -35,7 +35,6 @@ const StoreLocator = () => {
 
   return (
     <div>
-      <h1>Store Locator</h1>
 
       <LoadScript googleMapsApiKey="AIzaSyB33V6scRrJ6yK36qt-XD_DgshA_CHPZ6U">
         <GoogleMap

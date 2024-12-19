@@ -5,13 +5,13 @@ const DriverAbout = () => {
   return (
     <div>
       <header style={{ padding: "20px", textAlign: "center", backgroundColor: "#f8f9fa" }}>
-        <h1>Driver About Page</h1>
+        <h1>Claim your free meal and eat with fellow riders</h1>
       </header>
 
       <main style={{ padding: "20px" }}>
         <section>
           <p>
-            Welcome to the Driver About page. Here, you can locate restaurants offering meals for drivers.
+            Find stores offering meals using the store locator.
           </p>
         </section>
 
