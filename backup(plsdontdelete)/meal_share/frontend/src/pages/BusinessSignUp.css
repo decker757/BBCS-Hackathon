@@ -1,0 +1,74 @@
+/* Center the sign-up container */
+.signup-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: url('https://source.unsplash.com/1600x900/?christmas'); /* Festive background */
+    background-size: cover;
+    background-position: center;
+  }
+  
+  /* Style the form */
+  .signup-form {
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 350px;
+    text-align: center;
+  }
+  
+  /* Form header */
+  .signup-form h2 {
+    margin-bottom: 20px;
+    color: #228b22; /* Festive green */
+    font-size: 1.8rem;
+    font-weight: bold;
+  }
+  
+  /* Style form groups */
+  .form-group {
+    margin-bottom: 15px;
+    text-align: left;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+  }
+  
+  .form-group input:focus {
+    outline: none;
+    border-color: #228b22; /* Green highlight on focus */
+  }
+  
+  /* Submit Button */
+  .signupp-button {
+    width: 100%;
+    padding: 10px;
+    font-size: 1.2rem;
+    color: white;
+    background-color: #228b22; /* Festive green */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .signupp-button:hover {
+    background-color: #d9534f; /* Red on hover */
+  }
+  

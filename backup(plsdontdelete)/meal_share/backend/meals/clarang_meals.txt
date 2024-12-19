@@ -1,0 +1,2 @@
+{"dishName": "Chicken Biryani", "mealType": "Halal", "quantity": "150"}
+{"dishName": "Beef Stew", "mealType": "Non-Halal", "quantity": "100"}
