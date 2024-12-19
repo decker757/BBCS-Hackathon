@@ -375,7 +375,7 @@ def get_locations():
             print('here')
             if coords:
                 all_correct_business_data.append({
-                    "title": f"{business_data.get('firstname', '')} {business_data.get('lastname', '')}",
+                    "title": f"{business_data.get('businessname', '')}",
                     "address1": address,
                     "address2": f"Postal Code: {postal_code}",
                     "coords": coords,
