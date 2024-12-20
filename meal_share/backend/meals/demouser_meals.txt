@@ -1,0 +1,2 @@
+{"dishName": "Bak Kut Teh", "mealType": "Non-Halal", "quantity": "3000"}
+{"dishName": "Mee Pok", "mealType": "Non-Halal", "quantity": "300"}
