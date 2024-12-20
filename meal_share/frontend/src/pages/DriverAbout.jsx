@@ -23,7 +23,7 @@ const DriverAbout = () => {
       </main>
 
       <footer style={{ padding: "20px", textAlign: "center", backgroundColor: "#f8f9fa" }}>
-        <p>© 2024 Meal Share. All Rights Reserved.</p>
+        <p>© 2024 NomNomNetwork. All Rights Reserved.</p>
       </footer>
     </div>
   );
