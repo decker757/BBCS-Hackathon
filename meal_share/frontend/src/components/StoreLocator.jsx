@@ -11,6 +11,8 @@ const defaultCenter = {
   lng: 103.8198, // Singapore Longitude
 };
 
+const googleMapsApiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "";
+
 const StoreLocator = () => {
   const [locations, setLocations] = useState([]); // Stores all fetched locations
   const [selectedLocation, setSelectedLocation] = useState(null); // Tracks the selected marker's location
@@ -35,8 +37,10 @@ const StoreLocator = () => {
 
   return (
     <div>
-
-      <LoadScript googleMapsApiKey="AIzaSyB33V6scRrJ6yK36qt-XD_DgshA_CHPZ6U">
+      {!googleMapsApiKey ? (
+        <p>Map unavailable until REACT_APP_GOOGLE_MAPS_API_KEY is configured.</p>
+      ) : (
+      <LoadScript googleMapsApiKey={googleMapsApiKey}>
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={defaultCenter} // Default center, adjust dynamically if needed
@@ -100,6 +104,7 @@ const StoreLocator = () => {
           )}
         </GoogleMap>
       </LoadScript>
+      )}
     </div>
   );
 };
