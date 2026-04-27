@@ -12,10 +12,16 @@ from flask import Flask, jsonify, request
 app = Flask(__name__)
 CORS(app)
 
-GOOGLE_MAPS_API_KEY = "AIzaSyB33V6scRrJ6yK36qt-XD_DgshA_CHPZ6U"
 BUSINESS_FILE_PATH = "users/business.txt"
 DRIVER_FILE_PATH = 'users/drivers.txt'
 DATA_DIR = 'meals'
+
+
+def get_google_maps_api_key():
+    api_key = os.getenv("GOOGLE_MAPS_API_KEY")
+    if not api_key:
+        raise RuntimeError("GOOGLE_MAPS_API_KEY environment variable is not configured")
+    return api_key
 
 # Utility functions for file-based user and meal management
 def read_file(filepath):
@@ -124,7 +130,7 @@ def write_meals(username, data):
 def geocode_address(address):
     """Geocode the address using Google Maps Geocoding API."""
     url = "https://maps.googleapis.com/maps/api/geocode/json"
-    params = {"address": address, "key": GOOGLE_MAPS_API_KEY}
+    params = {"address": address, "key": get_google_maps_api_key()}
     response = requests.get(url, params=params)
     geocode_data = response.json()
 
@@ -391,6 +397,8 @@ def get_locations():
 
     except json.JSONDecodeError:
         return jsonify({"error": "Error parsing business.txt"}), 400
+    except RuntimeError as e:
+        return jsonify({"error": str(e)}), 503
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
