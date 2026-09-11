@@ -1,0 +1,11 @@
+.meal-manager { width: 100%; max-width: 760px; margin: 0 auto; text-align: left; }
+.meal-manager form { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(180px, 100%), 1fr)); gap: 12px; align-items: end; }
+.meal-manager label { display: grid; gap: 5px; }
+.meal-manager input { box-sizing: border-box; width: 100%; min-width: 0; padding: 8px; }
+.meal-manager button { padding: 9px 14px; cursor: pointer; }
+.meal-manager button:disabled { cursor: wait; }
+.meal-manager button:focus-visible, .meal-manager input:focus-visible { outline: 3px solid #124b36; outline-offset: 3px; }
+.meal-manager ul { list-style: none; padding: 0; }
+.meal-manager li { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px 0; border-bottom: 1px solid #bbb; }
+.meal-manager li input { max-width: 120px; }
+.meal-manager [role="alert"] { padding: 12px; border: 2px solid #982b2b; }

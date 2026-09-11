@@ -1,70 +1,82 @@
-# Getting Started with Create React App
+# NomNomNetwork — BBCS Hackathon
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+NomNomNetwork connects food businesses offering meals with delivery riders. The current application is the React frontend in `meal_share/frontend` and the Flask API in `meal_share/backend/app.py`.
 
-## Available Scripts
+## Run locally
 
-In the project directory, you can run:
+Use Node 22 and Python 3.12. In a PowerShell terminal at the repository root:
 
-### `npm start`
+```powershell
+python -m venv .venv
+.venv/Scripts/Activate.ps1
+python -m pip install -r meal_share/backend/requirements.txt
+$env:FLASK_SECRET_KEY = python -c "import secrets; print(secrets.token_hex(32))"
+$env:SESSION_COOKIE_SECURE = "false"
+$env:MEAL_SHARE_DATA_DIR = Join-Path $env:TEMP "nomnom-local-data"
+python meal_share/backend/app.py
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+This example puts new demo records in a separate temporary directory. Keep that directory if its demo data matters. Without `MEAL_SHARE_DATA_DIR`, the API uses the existing `meal_share/backend/users` and `meal_share/backend/meals` files. Changing the configured directory does not copy or migrate records.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+In a second terminal:
 
-### `npm test`
+```powershell
+cd meal_share/frontend
+npm ci --ignore-scripts --no-fund
+npm start
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Open `http://localhost:3000`. The development proxy forwards relative API requests to `http://127.0.0.1:5000`. Business accounts can register, sign in, add meals and update their quantities, including zero. The editor restores its account from the server session after reload. Riders have a separate sign-in flow and cannot manage a business's meals.
 
-### `npm run build`
+## Hosting and configuration
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+No production runtime has been mapped for this repository in the portfolio's accessible Vercel projects. Publishing source or building the frontend does not establish a working hosted Flask API. The local file store needs persistent storage; an ephemeral serverless filesystem cannot safely replace it.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Build the frontend with `npm run build` from `meal_share/frontend`. Serve `build/` and route `/api/*`, `/meals/*` and `/business/*` to the API on the same HTTPS origin. Only frontend routes should fall back to `index.html`. Alternatively, set `REACT_APP_API_BASE_URL` at build time to a compatible API origin and list the frontend's exact origin in `FRONTEND_ORIGINS`. Cookies use `SameSite=Lax`, so unrelated cross-site domains are not supported by simply enabling CORS.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+The API requires a stable, private `FLASK_SECRET_KEY` to sign sessions. Login and logout return a controlled unavailable response if it is missing. Production cookies are Secure and HttpOnly by default; the `SESSION_COOKIE_SECURE=false` override is for local HTTP. Sessions expire after eight hours and are not renewed by ordinary reads. Logout clears the current browser's session cookie; this signed-cookie design does not provide server-side revocation of a copied cookie.
 
-### `npm run eject`
+Set `FRONTEND_ORIGINS` to the public frontend's exact HTTPS origin, including when a reverse proxy forwards requests to a different internal API address. Keep the secret key in the host's private configuration and preserve it across ordinary restarts.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Mutating requests require `X-Meal-Share-Request: 1`. Requests carrying an Origin header must come from the same origin or an explicit `FRONTEND_ORIGINS` entry. The bundled client supplies the header and includes cookies. Do not use wildcard credential origins or expose the development server as a production server.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Maps require a restricted browser `REACT_APP_GOOGLE_MAPS_API_KEY` and a private server `GOOGLE_MAPS_API_KEY`. Account and meal checks do not require either. The location endpoint still geocodes businesses on demand; caching, provider quotas and total request budgeting remain follow-up work. The per-call connection/read timeouts are not a total batch deadline.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Checks
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Backend authorization checks use disposable synthetic records:
 
-## Learn More
+```powershell
+python -m unittest discover -s meal_share/backend/tests -p "test_*.py" -v
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+From `meal_share/frontend`, run:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```powershell
+$env:CI = "true"
+npm test -- --watch=false --runInBand
+npm run build
+```
 
-### Code Splitting
+For the real browser fixture, run from the repository root after building:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```powershell
+python -m pip install -r meal_share/backend/requirements-test.txt
+python -m playwright install chromium
+python meal_share/backend/tests/browser_accounts.py
+```
 
-### Analyzing the Bundle Size
+The browser fixture serves the built UI with the real API on loopback, uses temporary account/meal records, blocks external provider requests and checks desktop/mobile login, ownership, saving, session restoration and logout. Reports and screenshots go to the ignored `meal_share/browser-results/` directory. CI runs these checks for changes to the active application on pull requests and main.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+CRA's Jest 27 resolver needs an explicit mapping for React Router's `react-router/dom` package export; the mapping loads the real installed implementation. The Babel preset's otherwise undeclared private-property plugin is also listed explicitly. These keep the current toolchain reproducible while its replacement remains open. See [CRA's supported Jest configuration](https://create-react-app.dev/docs/running-tests/#configuration).
 
-### Making a Progressive Web App
+## Data preservation and remaining work
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Existing account/meal files, `backup(plsdontdelete)/` and historical entry points are preserved. Only `meal_share/backend/app.py` is the current supported API entry point. Its meal writes share an in-process lock and quantity updates replace a complete file atomically; multi-process registration/writes, duplicate dish identity, abuse limits and a lossless Supabase migration remain open. This release does not move or delete data and does not make the whole application production-ready. The Create React App build chain also has 30 remaining dependency audit entries (none critical), down from 66 before compatible updates. Express constrains its query-string dependency and JSONPath pins Underscore; broader tooling replacement remains open. The previously empty About route is restored and covered by navigation/browser checks.
 
-### Advanced Configuration
+## Portfolio upkeep task list — 2026-09-11
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- [x] Reproduce missing login/ownership checks and malformed registration/quantity inputs using synthetic files.
+- [x] Add signed sessions, ownership and request-origin protection while preserving records and backups.
+- [x] Verify configurable API routing, backend/client builds and real browser account flows.
+- [ ] Pass hosted checks, publish reviewed source and record the production hosting limits in the portfolio plans.
