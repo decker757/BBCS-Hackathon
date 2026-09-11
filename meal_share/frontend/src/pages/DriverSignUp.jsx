@@ -1,3 +1,4 @@
+import { apiFetch } from '../api';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './DriverSignUp.css';
@@ -26,7 +27,7 @@ function DriverSignUp() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/driver/register", {
+      const response = await apiFetch("/api/driver/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

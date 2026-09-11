@@ -1,9 +1,9 @@
 import './DriverLogin.css';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from "axios";
+import { api } from '../api';
 
-function BusinessLogin({ setLoggedInUsername }) {
+function BusinessLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -14,14 +14,12 @@ function BusinessLogin({ setLoggedInUsername }) {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://127.0.0.1:5000/api/business/login", {
+      const response = await api.post("/api/business/login", {
         username,
         password,
       });
 
       if (response.status === 200) {
-        setLoggedInUsername(username); // Save the logged-in username in App state
-        console.log("Username set in App:", username); // Debug log
         navigate("/businessabout", { state: { username }}); // Redirect to MealDonation page
       }
     } catch (error) {
@@ -42,22 +40,22 @@ function BusinessLogin({ setLoggedInUsername }) {
             <h2>Login Page</h2>
             {/* Display success or error message */}
               {message && (
-              <p style={{ color: isError ? 'red' : 'green' }}>{message}</p>
+              <p role="alert" style={{ color: isError ? 'red' : 'green' }}>{message}</p>
             )}
             <form onSubmit={handleSubmit}>
               <div>
-                <label>Username:</label>
+                <label htmlFor="business-username">Username:</label>
                 <input
-                  type="text"
+                  id="business-username" type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>
               <div>
-                <label>Password:</label>
+                <label htmlFor="business-password">Password:</label>
                 <input
-                  type="password"
+                  id="business-password" type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
