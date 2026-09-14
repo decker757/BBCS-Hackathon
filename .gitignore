@@ -1,9 +1,1 @@
 node_modules
-
-__pycache__/
-
-meal_share/frontend/build/
-
-meal_share/browser-results/
-
-.venv/

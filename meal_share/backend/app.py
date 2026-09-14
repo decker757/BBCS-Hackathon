@@ -1,113 +1,20 @@
-"""Meal Share API. Existing JSON-lines records remain the storage format."""
-from datetime import timedelta
-from functools import wraps
-from pathlib import Path
-from threading import RLock
-import json
-import os
-import re
-import tempfile
-
-from flask import Flask, request, jsonify, session
+# backend/app.py
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
+import json
 import requests
+import json
+import os
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
-app.config.update(
-    SECRET_KEY=os.getenv('FLASK_SECRET_KEY'),
-    SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SECURE=os.getenv('SESSION_COOKIE_SECURE', 'true').lower() != 'false',
-    SESSION_COOKIE_SAMESITE='Lax',
-    PERMANENT_SESSION_LIFETIME=timedelta(hours=8),
-    SESSION_REFRESH_EACH_REQUEST=False,
-    MAX_CONTENT_LENGTH=64 * 1024,
-)
-allowed_origins = [origin.strip().rstrip('/') for origin in os.getenv(
-    'FRONTEND_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000'
-).split(',') if origin.strip()]
-CORS(app, origins=allowed_origins, supports_credentials=True,
-     allow_headers=['Content-Type', 'X-Meal-Share-Request'])
+CORS(app)
 
-BASE_DIR = Path(os.getenv('MEAL_SHARE_DATA_DIR', str(Path(__file__).resolve().parent)))
-BUSINESS_FILE_PATH = str(BASE_DIR / 'users/business.txt')
-DRIVER_FILE_PATH = str(BASE_DIR / 'users/drivers.txt')
-DATA_DIR = str(BASE_DIR / 'meals')
-MEAL_LOCK = RLock()
-
-
-@app.before_request
-def protect_mutations():
-    if request.method not in ('POST', 'PUT', 'PATCH', 'DELETE'):
-        return None
-    # Forms cannot set this header. Cross-origin JavaScript requires a CORS
-    # preflight, and the server also checks its explicit origin allowlist.
-    origin = request.headers.get('Origin')
-    same_origin = request.host_url.rstrip('/')
-    if request.headers.get('X-Meal-Share-Request') != '1' or (
-        origin is not None and origin not in [same_origin, *allowed_origins]
-    ):
-        return jsonify({'message': 'Request origin is not allowed'}), 403
-    return None
-
-
-@app.after_request
-def private_responses(response):
-    if request.path != '/api/locations':
-        response.headers['Cache-Control'] = 'no-store'
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    return response
-
-
-def valid_username(value) -> bool:
-    return isinstance(value, str) and 0 < len(value) <= 100 and bool(
-        re.fullmatch(r'[\w .@+-]+', value)
-    ) and value == value.strip() and value not in ('.', '..')
-
-
-def json_object():
-    data = request.get_json(silent=True)
-    return data if isinstance(data, dict) else {}
-
-
-def quantity_value(value):
-    if isinstance(value, bool):
-        return None
-    if isinstance(value, int):
-        number = value
-    elif isinstance(value, str) and re.fullmatch(r'[0-9]{1,10}', value):
-        number = int(value)
-    else:
-        return None
-    return number if 0 <= number <= 2147483647 else None
-
-
-def require_business_owner(function):
-    @wraps(function)
-    def checked(username):
-        if not session.get('username'):
-            return jsonify({'message': 'Sign in to manage meals'}), 401
-        if session.get('role') != 'business' or session['username'] != username:
-            return jsonify({'message': 'You can only manage your own meals'}), 403
-        if not valid_username(username):
-            return jsonify({'message': 'Invalid username'}), 400
-        return function(username)
-    return checked
-
-
-@app.get('/api/session')
-def current_session():
-    if not session.get('username'):
-        return jsonify({'username': None, 'role': None})
-    return jsonify({'username': session['username'], 'role': session.get('role')})
-
-
-@app.post('/api/logout')
-def logout():
-    if not app.secret_key:
-        return jsonify({'message': 'Sign-out is temporarily unavailable'}), 503
-    session.clear()
-    return jsonify({'message': 'Signed out'})
+BUSINESS_FILE_PATH = "users/business.txt"
+DRIVER_FILE_PATH = 'users/drivers.txt'
+DATA_DIR = 'meals'
 
 
 def get_google_maps_api_key():
@@ -144,7 +51,7 @@ def is_username_taken(username, file_path):
     with open(file_path, 'r') as file:
         for line in file:
             user = json.loads(line.strip())
-            if str(user.get('username', '')).casefold() == username.casefold():
+            if user.get('username') == username:
                 return True  # Username found
     return False
 
@@ -175,7 +82,6 @@ def is_businessemail_taken(businessemail, file_path):
 
 def create_user_meals_file(username):
     file_path = os.path.join(DATA_DIR, f'{username}_meals.txt')
-    os.makedirs(DATA_DIR, exist_ok=True)
     if not os.path.exists(file_path):
         with open(file_path, "w") as file:
             file.write("")
@@ -214,20 +120,18 @@ def read_meals(username):
     if not os.path.exists(user_file):
         return []
     with open(user_file, 'r') as file:
-        return [json.loads(line.strip()) for line in file if line.strip()]
+        return [json.loads(line.strip()) for line in file]
     
 def write_meals(username, data):
     user_file = get_user_file(username)
-    os.makedirs(DATA_DIR, exist_ok=True)
-    with MEAL_LOCK, open(user_file, 'a') as file:
+    with open(user_file, 'a') as file:
         file.write(json.dumps(data) + "\n")
 
 def geocode_address(address):
     """Geocode the address using Google Maps Geocoding API."""
     url = "https://maps.googleapis.com/maps/api/geocode/json"
     params = {"address": address, "key": get_google_maps_api_key()}
-    response = requests.get(url, params=params, timeout=(3, 5))
-    response.raise_for_status()
+    response = requests.get(url, params=params)
     geocode_data = response.json()
 
     if geocode_data["status"] == "OK":
@@ -237,52 +141,75 @@ def geocode_address(address):
 
 
 # User Authentication Routes
-def login_user(role):
-    data = json_object()
-    username, password = data.get('username'), data.get('password')
-    if not valid_username(username) or not isinstance(password, str) or not password:
-        return jsonify({'message': 'Username and password are required'}), 400
-    if not app.secret_key:
-        return jsonify({'message': 'Sign-in is temporarily unavailable'}), 503
-    user = (find_business_user_in_file if role == 'business' else find_driver_user_in_file)(username)
-    if not user or not check_password_hash(user['password'], password):
-        return jsonify({'message': 'Invalid username or password'}), 401
-    session.clear()
-    session['username'] = user['username']
-    session['role'] = role
-    session.permanent = True
-    return jsonify({'message': 'Login successful', 'username': user['username'], 'role': role}), 200
-
-
-@app.post('/api/driver/login')
+@app.route('/api/driver/login', methods=['POST'])
 def driver_login():
-    return login_user('driver')
+    """Handle driver login."""
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    
+    # Super basic authentication (plaintext as requested)
+    drivers_file = 'users/drivers.txt'
+    if not os.path.exists(drivers_file):
+        return jsonify({"error": "No drivers registered"}), 404
+    
+    if not username or not password:
+        return jsonify({"message": "Username and password are required"}), 400
 
+    # Find user in file
+    user = find_driver_user_in_file(username)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
 
-@app.post('/api/business/login')
+    # Validate password
+    if check_password_hash(user["password"], password):
+        return jsonify({"message": "Login successful"}), 200
+    else:
+        return jsonify({"message": "Invalid password"}), 401
+
+@app.route('/api/business/login', methods=['POST'])
 def business_login():
-    return login_user('business')
+    """Handle business login."""
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    
+    # Super basic authentication (plaintext as requested)
+    business_file = 'users/business.txt'
+    if not os.path.exists(business_file):
+        return jsonify({"error": "No business registered"}), 404
+    
+    if not username or not password:
+        return jsonify({"message": "Username and password are required"}), 400
+
+    # Find user in file
+    user = find_business_user_in_file(username)
+    if not user:
+        return jsonify({"message": "User not found"}), 401
+
+    # Validate password
+    if check_password_hash(user["password"], password):
+        return jsonify({"message": "Login successful"}), 200
+    else:
+        return jsonify({"message": "Invalid password"}), 401
 
 # Meal Management Routes
 @app.route('/meals/available/<username>', methods=['POST'])
-@require_business_owner
 def add_meal(username):
-    data = json_object()
-    quantity = quantity_value(data.get('quantity'))
-    if quantity is None or not all(isinstance(data.get(key), str) and data[key].strip() for key in ['dishName', 'mealType']):
+    data = request.json
+    if not username or not all(key in data for key in ["dishName", "mealType", "quantity"]):
         return jsonify({"message": "Invalid input or missing username"}), 400
 
     # Write to user-specific file
     write_meals(username, {
         "dishName": data["dishName"],
         "mealType": data["mealType"],
-        "quantity": quantity
+        "quantity": data["quantity"]
     })
 
     return jsonify({"message": f"Meal added successfully for {username}"}), 201
 
 @app.route('/business/updatemeals/<username>', methods=['GET'])
-@require_business_owner
 def get_meals(username):
     if not username:
         return jsonify({"message": "Username is required"}), 400
@@ -291,64 +218,58 @@ def get_meals(username):
     return jsonify(meals), 200
 
 @app.route('/business/updatemeals/<username>', methods=['PUT'])
-@require_business_owner
 def update_meal(username):
-    data = json_object()
+    data = request.json
     dish_name = data.get("dishName")
-    new_quantity = quantity_value(data.get("newQuantity"))
+    new_quantity = data.get("newQuantity")
 
-    if not isinstance(dish_name, str) or not dish_name.strip() or new_quantity is None:
+    if not dish_name or not new_quantity:
         return jsonify({"message": "Dish name and new quantity are required"}), 400
 
-    with MEAL_LOCK:
-        user_file = get_user_file(username)
-        if not os.path.exists(user_file):
-            return jsonify({'message': 'User file not found'}), 404
-        meals = read_meals(username)
-        if not any(meal.get('dishName') == dish_name for meal in meals):
-            return jsonify({'message': 'Dish not found'}), 404
-        for meal in meals:
-            if meal.get('dishName') == dish_name:
-                meal['quantity'] = new_quantity
-        # Replace only after a complete write; never truncate the existing file
-        # before its replacement is ready. The in-process lock also covers adds.
-        temporary = None
-        try:
-            with tempfile.NamedTemporaryFile(mode='w', dir=DATA_DIR, prefix='.meals-', delete=False) as file:
-                temporary = file.name
-                for meal in meals:
-                    file.write(json.dumps(meal) + '\n')
-                file.flush()
-                os.fsync(file.fileno())
-            os.replace(temporary, user_file)
-        finally:
-            if temporary and os.path.exists(temporary):
-                os.unlink(temporary)
-    return jsonify({'message': 'Meal updated successfully'}), 200
+    user_file = os.path.join(DATA_DIR, f"{username}_meals.txt")
+    if not os.path.exists(user_file):
+        return jsonify({"message": "User file not found"}), 404
 
+    updated_meals = []
+    meal_updated = False
+
+    # Update the specific meal's quantity
+    with open(user_file, "r") as file:
+        for line in file:
+            meal = json.loads(line.strip())
+            if meal["dishName"] == dish_name:
+                meal["quantity"] = new_quantity
+                meal_updated = True
+            updated_meals.append(meal)
+
+    # Write updated meals back to the file
+    with open(user_file, "w") as file:
+        for meal in updated_meals:
+            file.write(json.dumps(meal) + "\n")
+
+    if meal_updated:
+        return jsonify({"message": "Meal updated successfully"}), 200
+    else:
+        return jsonify({"message": "Dish not found"}), 404
+    
 # Registration Routes
 @app.route('/api/driver/register', methods=['POST'])
 def register_driver():
     """Register a new driver."""
-    data = json_object()
+    data = request.get_json()
 
     if not data:
         return jsonify({"message": "No data received"}), 400
-    drivers_file = DRIVER_FILE_PATH
+    drivers_file = 'users/drivers.txt'
 
 
     # Validate required fields
     required_fields = ["firstname", "lastname", "username", "password", "email", "deliverycompany"]
     errors = []
     for field in required_fields:
-        if not isinstance(data.get(field), str) or not data[field].strip():
+        if field not in data or not data[field]:
             errors.append(f"Missing field: {field}")
         
-    if not valid_username(data.get('username')):
-        errors.append('Invalid username')
-    if errors:
-        return jsonify({'errors': errors}), 400
-
     if is_username_taken(data['username'], drivers_file):
         errors.append("Username already exists") 
     
@@ -370,8 +291,7 @@ def register_driver():
         "deliverycompany": data['deliverycompany']
     }
     
-    # Retain the existing JSON-lines format with a password hash
-    os.makedirs(Path(drivers_file).parent, exist_ok=True)
+    # Basic registration (plaintext storage)
     with open(drivers_file, 'a') as f:
         f.write(json.dumps(driver_data) + "\n")
     
@@ -380,21 +300,16 @@ def register_driver():
 @app.route('/api/business/register', methods=['POST'])
 def register_business():
     """Register a new food business."""
-    data = json_object()
-    business_file = BUSINESS_FILE_PATH
+    data = request.json
+    business_file = 'users/business.txt'
 
     required_fields = ["firstname", "lastname", "role", "businessname","businessemail", "address", "postal", "username", "password"]
     errors = []
 
     for field in required_fields:
-        if not isinstance(data.get(field), str) or not data[field].strip():
+        if field not in data or not data[field]:
             errors.append(f"Missing field: {field}")
         
-    if not valid_username(data.get('username')):
-        errors.append('Invalid username')
-    if errors:
-        return jsonify({'errors': errors}), 400
-
     if is_username_taken(data['username'], business_file):
         errors.append("Username already exists")  
     
@@ -419,8 +334,7 @@ def register_business():
         "password": hashed_password,
     }
     
-    # Retain the existing JSON-lines format with a password hash
-    os.makedirs(Path(business_file).parent, exist_ok=True)
+    # Basic registration (plaintext storage)
     with open(business_file, 'a') as f:
         f.write(json.dumps(business_data) + "\n")
     
@@ -431,6 +345,7 @@ def register_business():
 @app.route('/api/locations', methods=['GET'])
 def get_locations():
     """Read business.txt, geocode addresses, and return a list of locations."""
+    print('here')
     try:
         # Check if the file exists
         if not os.path.exists(BUSINESS_FILE_PATH):
@@ -439,6 +354,7 @@ def get_locations():
         with open(BUSINESS_FILE_PATH, "r") as file:
             # business_data = json.load(file)
             all_business_data = [json.loads(line) for line in file] # list of dictionaries
+            print(all_business_data)
 
         all_correct_business_data = []
         for business_data in all_business_data:
@@ -457,7 +373,12 @@ def get_locations():
             coords = geocode_address(full_address)
 
             # Get meals availble for the business
-            meals = read_meals(username) if valid_username(username) else []
+            MEALS_PATH = f"meals/{username}_meals.txt"
+            with open(MEALS_PATH, "a+") as file:
+                file.seek(0)
+                meals = [json.loads(line) for line in file]
+                print(meals)
+            print('here')
             if coords:
                 all_correct_business_data.append({
                     "title": f"{business_data.get('businessname', '')}",
@@ -469,6 +390,7 @@ def get_locations():
             else:
                 return jsonify({"error": "Error geocoding address}"}), 500
         if all_correct_business_data:
+            print(all_correct_business_data)
             return jsonify(all_correct_business_data), 200
         else:
             return jsonify({"error": "No locations found"}), 404
@@ -477,12 +399,14 @@ def get_locations():
         return jsonify({"error": "Error parsing business.txt"}), 400
     except RuntimeError as e:
         return jsonify({"error": str(e)}), 503
-    except requests.RequestException:
-        return jsonify({"error": "Location provider is temporarily unavailable"}), 502
-    except Exception:
-        return jsonify({"error": "Unable to load locations"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    os.makedirs(Path(BUSINESS_FILE_PATH).parent, exist_ok=True)
-    os.makedirs(DATA_DIR, exist_ok=True)
-    app.run(debug=False)
+    # Ensure necessary directories exist
+    os.makedirs('users', exist_ok=True)
+    os.makedirs('meals', exist_ok=True)
+    
+    # Run the Flask app
+    # app.run(debug=True, port=5000)
+    app.run(debug=True)

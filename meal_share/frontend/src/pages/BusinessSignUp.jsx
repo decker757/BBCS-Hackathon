@@ -1,4 +1,3 @@
-import { apiFetch } from '../api';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -31,7 +30,7 @@ function BusinessSignUp() {
     e.preventDefault();
 
     try {
-      const response = await apiFetch("/api/business/register", {
+      const response = await fetch("http://127.0.0.1:5000/api/business/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

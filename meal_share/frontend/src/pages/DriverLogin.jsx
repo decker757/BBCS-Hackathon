@@ -1,4 +1,3 @@
-import { apiFetch } from '../api';
 import './DriverLogin.css';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 function DriverLogin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [message, setMessage] = useState(''); // For both success and error messages
   const [isError, setIsError] = useState(false); // Track if the message is an error
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ function DriverLogin() {
 
     try {
       // Send POST request to Flask backend
-      const response = await apiFetch('/api/driver/login', {
+      const response = await fetch('http://127.0.0.1:5000/api/driver/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -34,6 +34,7 @@ function DriverLogin() {
       if (response.ok) {
         // If login successful
         navigate('/driverabout', { state: {username} });
+        setIsLoggedIn(true);
         setMessage('Login successful!'); // Show success message
         setIsError(false);
 
@@ -57,23 +58,23 @@ function DriverLogin() {
             <h2>Login Page</h2>
             {/* Display success or error message */}
             {message && (
-              <p role="alert" style={{ color: isError ? 'red' : 'green' }}>{message}</p>
+              <p style={{ color: isError ? 'red' : 'green' }}>{message}</p>
             )}
 
             <form onSubmit={handleSubmit}>
               <div>
-                <label htmlFor="driver-username">Username:</label>
+                <label>Username:</label>
                 <input
-                  id="driver-username" type="text"
+                  type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
                 />
               </div>
               <div>
-                <label htmlFor="driver-password">Password:</label>
+                <label>Password:</label>
                 <input
-                  id="driver-password" type="password"
+                  type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

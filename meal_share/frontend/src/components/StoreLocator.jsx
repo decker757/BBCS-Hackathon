@@ -1,4 +1,3 @@
-import { apiFetch } from '../api';
 import React, { useEffect, useState } from "react";
 import { GoogleMap, LoadScript, Marker, InfoWindow } from "@react-google-maps/api";
 
@@ -15,20 +14,21 @@ const defaultCenter = {
 const googleMapsApiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "";
 
 const StoreLocator = () => {
-  const [locations, setLocations] = useState([]);
-  const [error, setError] = useState(''); // Stores all fetched locations
+  const [locations, setLocations] = useState([]); // Stores all fetched locations
   const [selectedLocation, setSelectedLocation] = useState(null); // Tracks the selected marker's location
 
   // Fetch locations from the backend
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const response = await apiFetch("/api/locations");
+        console.log('fetching locations');
+        const response = await fetch("http://localhost:5000/api/locations");
+        console.log('response', response);
         const data = await response.json();
-        if (!response.ok || !Array.isArray(data)) throw new Error('Locations unavailable');
+        console.log("Data:", data); // Debug log
         setLocations(data); // Save locations to state
       } catch (error) {
-        setError('Meal locations are temporarily unavailable. Please try again later.');
+        console.error("Error fetching locations:", error);
       }
     };
 
@@ -37,9 +37,8 @@ const StoreLocator = () => {
 
   return (
     <div>
-      {error && <p role="alert">{error}</p>}
       {!googleMapsApiKey ? (
-        <p>The map is currently unavailable.</p>
+        <p>Map unavailable until REACT_APP_GOOGLE_MAPS_API_KEY is configured.</p>
       ) : (
       <LoadScript googleMapsApiKey={googleMapsApiKey}>
         <GoogleMap

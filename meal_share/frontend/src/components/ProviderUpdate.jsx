@@ -1,115 +1,128 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { api } from '../api';
-import './ProviderUpdate.css';
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import axios from "axios";
 
 function ProviderUpdate() {
-  const navigate = useNavigate();
-  const [username, setUsername] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-  const [formData, setFormData] = useState({ dishName: '', mealType: '', quantity: '' });
+  const location = useLocation();
+  const username = location.state?.username;
+
+  console.log("Received username in ProviderUpdate:", username); // Debug log
+
+  const [formData, setFormData] = useState({
+    dishName: "",
+    mealType: "",
+    quantity: "",
+  });
   const [meals, setMeals] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
-  const [newQuantity, setNewQuantity] = useState('');
+  const [newQuantity, setNewQuantity] = useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`http://127.0.0.1:5000/meals/available/${username}`, formData, {
+        headers: { "Content-Type": "application/json" },
+      });
+      fetchMeals(); // Fetch updated meals
+      setFormData({ dishName: "", mealType: "", quantity: "" }); // Reset form
+    } catch (error) {
+      console.error("Error adding meal:", error.response?.data || error.message);
+    }
+  };
+
+  const fetchMeals = async () => {
+    try {
+      const response = await axios.get(`http://127.0.0.1:5000/business/updatemeals/${username}`);
+      setMeals(response.data);
+    } catch (error) {
+      console.error("Error fetching meals:", error.response?.data || error.message);
+    }
+  };
+
+  const handleEditClick = (index, currentQuantity) => {
+    setEditingIndex(index);
+    setNewQuantity(currentQuantity);
+  };
+
+  const handleUpdateQuantity = async (index, meal) => {
+    try {
+      // Send a PUT request to update the meal quantity
+      await axios.put(`http://127.0.0.1:5000/business/updatemeals/${username}`, {
+        dishName: meal.dishName,
+        newQuantity: newQuantity,
+      });
+      setEditingIndex(null); // Exit editing mode
+      fetchMeals(); // Refresh updated meals
+    } catch (error) {
+      console.error("Error updating quantity:", error.response?.data || error.message);
+    }
+  };
 
   useEffect(() => {
-    const controller = new AbortController();
-    async function load() {
-      try {
-        const identity = await api.get('/api/session', { signal: controller.signal });
-        if (identity.data.role !== 'business' || !identity.data.username) {
-          navigate('/businesslogin', { replace: true });
-          return;
-        }
-        const owner = identity.data.username;
-        const response = await api.get(`/business/updatemeals/${encodeURIComponent(owner)}`, { signal: controller.signal });
-        if (!controller.signal.aborted) {
-          setUsername(owner);
-          setMeals(response.data);
-        }
-      } catch (failure) {
-        if (!controller.signal.aborted) setError('Unable to load your meals. Please sign in again or retry.');
-      } finally {
-        if (!controller.signal.aborted) setLoading(false);
-      }
-    }
-    load();
-    return () => controller.abort();
-  }, [navigate]);
+    fetchMeals();
+  }, [username]); // Fetch meals when username changes
 
-  async function save(path, method, data, onSaved) {
-    if (busy || !username) return;
-    setBusy(true);
-    setError('');
-    let saved = false;
-    try {
-      await api.request({ url: path, method, data });
-      saved = true;
-      onSaved();
-      const response = await api.get(`/business/updatemeals/${encodeURIComponent(username)}`);
-      setMeals(response.data);
-    } catch (failure) {
-      if (failure.response?.status === 401) {
-        setUsername(null);
-        setMeals([]);
-        setError('Your session has expired. Please sign in again.');
-      } else if (saved) {
-        setError('Your changes were saved, but the list could not refresh. Reload this page to see them.');
-      } else setError(failure.response?.data?.message || 'Unable to confirm your changes. Reload your meals before retrying.');
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  function addMeal(event) {
-    event.preventDefault();
-    save(`/meals/available/${encodeURIComponent(username)}`, 'POST', formData,
-      () => setFormData({ dishName: '', mealType: '', quantity: '' }));
-  }
-
-  if (loading) return <p role="status">Loading your meals…</p>;
   return (
-    <section className="meal-manager" aria-label="Manage your meals">
-      {error && <p role="alert">{error} {!username && <Link to="/businesslogin">Sign in</Link>}</p>}
-      {username && <>
-        <p>Signed in as {username}</p>
-        <form onSubmit={addMeal}>
-          {['dishName', 'mealType', 'quantity'].map((name) => (
-            <label key={name} htmlFor={name}>
-              {{ dishName: 'Dish name', mealType: 'Meal type', quantity: 'Quantity' }[name]}
-              <input id={name} name={name} type={name === 'quantity' ? 'number' : 'text'} min={name === 'quantity' ? '0' : undefined}
-                step={name === 'quantity' ? '1' : undefined} value={formData[name]} disabled={busy}
-                onChange={(event) => setFormData({ ...formData, [name]: event.target.value })} required />
-            </label>
-          ))}
-          <button type="submit" disabled={busy}>{busy ? 'Saving…' : 'Add Meal'}</button>
-        </form>
-        <h3>Available meals</h3>
-        {meals.length === 0 && <p>No meals added yet.</p>}
-        <ul>
-          {meals.map((meal, index) => (
-            <li key={index}>
-              <span>{meal.dishName} ({meal.mealType}) — Quantity: </span>
-              {editingIndex === index ? <>
-                <input type="number" min="0" step="1" aria-label={`Quantity for ${meal.dishName}`} value={newQuantity}
-                  onChange={(event) => setNewQuantity(event.target.value)} disabled={busy} />
-                <button disabled={busy} onClick={() => save(`/business/updatemeals/${encodeURIComponent(username)}`, 'PUT',
-                  { dishName: meal.dishName, newQuantity }, () => setEditingIndex(null))}>Save</button>
-                <button disabled={busy} onClick={() => setEditingIndex(null)}>Cancel</button>
-              </> : <>
-                <span>{meal.quantity}</span>
-                <button aria-label={`Edit ${meal.dishName}`} disabled={busy} onClick={() => {
-                  setEditingIndex(index); setNewQuantity(meal.quantity);
-                }}>Edit</button>
-              </>}
-            </li>
-          ))}
-        </ul>
-      </>}
-    </section>
+    <div>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="dishName"
+          placeholder="Dish Name"
+          value={formData.dishName}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="text"
+          name="mealType"
+          placeholder="Meal Type"
+          value={formData.mealType}
+          onChange={handleChange}
+          required
+        />
+        <input
+          type="number"
+          name="quantity"
+          placeholder="Quantity"
+          value={formData.quantity}
+          onChange={handleChange}
+          required
+        />
+        <button type="submit">Add Meal</button>
+      </form>
+
+      <h3>Updated Meals</h3>
+      <ul>
+        {meals.map((meal, index) => (
+          <li key={index}>
+            {meal.dishName} ({meal.mealType}) - Quantity:{" "}
+            {editingIndex === index ? (
+              <>
+                <input
+                  type="number"
+                  value={newQuantity}
+                  onChange={(e) => setNewQuantity(e.target.value)}
+                />
+                <button onClick={() => handleUpdateQuantity(index, meal)}>Save</button>
+              </>
+            ) : (
+              <>
+                {meal.quantity}
+                <button onClick={() => handleEditClick(index, meal.quantity)}>Edit</button>
+              </>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
 export default ProviderUpdate;
+

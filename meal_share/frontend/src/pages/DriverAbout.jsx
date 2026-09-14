@@ -1,19 +1,7 @@
-import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
-import { api } from '../api';
+import React from "react";
 import StoreLocator from "../components/StoreLocator"; // Adjust path as needed
 
 const DriverAbout = () => {
-  const navigate = useNavigate();
-  const [error, setError] = useState('');
-  async function logout() {
-    try {
-      await api.post('/api/logout');
-      navigate('/');
-    } catch (failure) {
-      setError('Unable to sign out. Please retry.');
-    }
-  }
   return (
     <div>
       <header style={{ padding: "20px", textAlign: "center", backgroundColor: "#f8f9fa" }}>
@@ -21,8 +9,6 @@ const DriverAbout = () => {
       </header>
 
       <main style={{ padding: "20px" }}>
-        {error && <p role="alert">{error}</p>}
-        <button onClick={logout}>Logout</button>
         <section>
           <p>
             Find stores offering meals using the store locator.
